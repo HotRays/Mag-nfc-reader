@@ -91,6 +91,13 @@ extern "C" {
 #define CTS_PIN_NUMBER 7
 #define RTS_PIN_NUMBER 5
 #define HWFC           true
+	
+#define TWI_SDA                             16
+#define PIN07_SYSTEM_DEFAULT_CFG            NRF_PIN_DISCON_NOPULL
+
+#define TWI_SCL                             17
+#define PIN08_SYSTEM_DEFAULT_CFG            NRF_PIN_DISCON_NOPULL
+
 
 #define SPIS_MISO_PIN   28  // SPI MISO signal.
 #define SPIS_CSN_PIN    12  // SPI CSN signal.
