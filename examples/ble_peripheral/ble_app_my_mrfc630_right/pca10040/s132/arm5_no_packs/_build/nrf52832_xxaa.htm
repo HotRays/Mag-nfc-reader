@@ -3,9 +3,9 @@
 <title>Static Call Graph - [.\_build\nrf52832_xxaa.axf]</title></head>
 <body><HR>
 <H1>Static Call Graph for image .\_build\nrf52832_xxaa.axf</H1><HR>
-<BR><P>#&#060CALLGRAPH&#062# ARM Linker, 5060020: Last Updated: Fri Apr 13 10:56:34 2018
+<BR><P>#&#060CALLGRAPH&#062# ARM Linker, 5060020: Last Updated: Fri Apr 13 15:13:05 2018
 <BR><P>
-<H3>Maximum Stack Usage =        416 bytes + Unknown(Cycles, Untraceable Function Pointers)</H3><H3>
+<H3>Maximum Stack Usage =        424 bytes + Unknown(Cycles, Untraceable Function Pointers)</H3><H3>
 Call chain for Maximum Stack Depth:</H3>
 main &rArr; mfrc630_MF_example_dump &rArr; mfrc630_iso14443a_select &rArr; mfrc630_cmd_transceive &rArr; mfrc630_write_fifo &rArr; mfrc630_write_reg &rArr; nrf_drv_twi_tx &rArr; nrf_drv_twi_xfer &rArr; twi_xfer &rArr; twi_tx_start_transfer &rArr; twi_transfer &rArr; twi_send_byte
 <P>
@@ -515,7 +515,7 @@ Global Symbols
 </UL>
 
 <P><STRONG><a name="[2f]"></a>main</STRONG> (Thumb, 52 bytes, Stack size 0 bytes, main.o(i.main))
-<BR><BR>[Stack]<UL><LI>Max Depth = 416<LI>Call Chain = main &rArr; mfrc630_MF_example_dump &rArr; mfrc630_iso14443a_select &rArr; mfrc630_cmd_transceive &rArr; mfrc630_write_fifo &rArr; mfrc630_write_reg &rArr; nrf_drv_twi_tx &rArr; nrf_drv_twi_xfer &rArr; twi_xfer &rArr; twi_tx_start_transfer &rArr; twi_transfer &rArr; twi_send_byte
+<BR><BR>[Stack]<UL><LI>Max Depth = 424<LI>Call Chain = main &rArr; mfrc630_MF_example_dump &rArr; mfrc630_iso14443a_select &rArr; mfrc630_cmd_transceive &rArr; mfrc630_write_fifo &rArr; mfrc630_write_reg &rArr; nrf_drv_twi_tx &rArr; nrf_drv_twi_xfer &rArr; twi_xfer &rArr; twi_tx_start_transfer &rArr; twi_transfer &rArr; twi_send_byte
 </UL>
 <BR>[Calls]<UL><LI><a href="#[8f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;mfrc630_twi_init
 <LI><a href="#[91]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;mfrc630_MF_example_dump
@@ -543,8 +543,8 @@ Global Symbols
 <BR>[Called By]<UL><LI><a href="#[90]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;mfrc630_AN1102_recommended_registers
 </UL>
 
-<P><STRONG><a name="[91]"></a>mfrc630_MF_example_dump</STRONG> (Thumb, 90 bytes, Stack size 32 bytes, mfrc630.o(i.mfrc630_MF_example_dump))
-<BR><BR>[Stack]<UL><LI>Max Depth = 416<LI>Call Chain = mfrc630_MF_example_dump &rArr; mfrc630_iso14443a_select &rArr; mfrc630_cmd_transceive &rArr; mfrc630_write_fifo &rArr; mfrc630_write_reg &rArr; nrf_drv_twi_tx &rArr; nrf_drv_twi_xfer &rArr; twi_xfer &rArr; twi_tx_start_transfer &rArr; twi_transfer &rArr; twi_send_byte
+<P><STRONG><a name="[91]"></a>mfrc630_MF_example_dump</STRONG> (Thumb, 92 bytes, Stack size 32 bytes, mfrc630.o(i.mfrc630_MF_example_dump))
+<BR><BR>[Stack]<UL><LI>Max Depth = 424<LI>Call Chain = mfrc630_MF_example_dump &rArr; mfrc630_iso14443a_select &rArr; mfrc630_cmd_transceive &rArr; mfrc630_write_fifo &rArr; mfrc630_write_reg &rArr; nrf_drv_twi_tx &rArr; nrf_drv_twi_xfer &rArr; twi_xfer &rArr; twi_tx_start_transfer &rArr; twi_transfer &rArr; twi_send_byte
 </UL>
 <BR>[Calls]<UL><LI><a href="#[98]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;mfrc630_print_block
 <LI><a href="#[97]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;mfrc630_iso14443a_select
@@ -651,8 +651,8 @@ Global Symbols
 <BR>[Called By]<UL><LI><a href="#[96]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;mfrc630_iso14443a_REQA
 </UL>
 
-<P><STRONG><a name="[97]"></a>mfrc630_iso14443a_select</STRONG> (Thumb, 1808 bytes, Stack size 120 bytes, mfrc630.o(i.mfrc630_iso14443a_select))
-<BR><BR>[Stack]<UL><LI>Max Depth = 384<LI>Call Chain = mfrc630_iso14443a_select &rArr; mfrc630_cmd_transceive &rArr; mfrc630_write_fifo &rArr; mfrc630_write_reg &rArr; nrf_drv_twi_tx &rArr; nrf_drv_twi_xfer &rArr; twi_xfer &rArr; twi_tx_start_transfer &rArr; twi_transfer &rArr; twi_send_byte
+<P><STRONG><a name="[97]"></a>mfrc630_iso14443a_select</STRONG> (Thumb, 1822 bytes, Stack size 128 bytes, mfrc630.o(i.mfrc630_iso14443a_select))
+<BR><BR>[Stack]<UL><LI>Max Depth = 392<LI>Call Chain = mfrc630_iso14443a_select &rArr; mfrc630_cmd_transceive &rArr; mfrc630_write_fifo &rArr; mfrc630_write_reg &rArr; nrf_drv_twi_tx &rArr; nrf_drv_twi_xfer &rArr; twi_xfer &rArr; twi_tx_start_transfer &rArr; twi_transfer &rArr; twi_send_byte
 </UL>
 <BR>[Calls]<UL><LI><a href="#[9a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;mfrc630_write_reg
 <LI><a href="#[a6]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;mfrc630_timer_set_value

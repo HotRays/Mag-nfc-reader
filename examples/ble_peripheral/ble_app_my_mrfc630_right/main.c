@@ -6,11 +6,11 @@
 #include "mfrc630.h"
 #include "nrf_delay.h"
 
-#define UART_TX_BUF_SIZE                512                   /**< UART TX buffer size. */
-#define UART_RX_BUF_SIZE                512                   /**< UART RX buffer size. */
+#define UART_TX_BUF_SIZE      512                   /**< UART TX buffer size. */
+#define UART_RX_BUF_SIZE      512                   /**< UART RX buffer size. */
 
-static ble_nus_t                        m_nus;                    /**< Structure to identify the Nordic UART Service. */
-static uint16_t                         m_ble_nus_max_data_len = BLE_GATT_ATT_MTU_DEFAULT - 3;  /**< Maximum length of data (in bytes) that can be transmitted to the peer by the Nordic UART service module. */
+static ble_nus_t              m_nus;                    /**< Structure to identify the Nordic UART Service. */
+static uint16_t               m_ble_nus_max_data_len = BLE_GATT_ATT_MTU_DEFAULT - 3;  /**< Maximum length of data (in bytes) that can be transmitted to the peer by the Nordic UART service module. */
 
 void uart_event_handle(app_uart_evt_t * p_event)
 {
@@ -77,7 +77,6 @@ static void uart_init(void)
                        err_code);
     APP_ERROR_CHECK(err_code);
 }
-
 
 int main(void)
 {
