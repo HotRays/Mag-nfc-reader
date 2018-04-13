@@ -6,8 +6,8 @@
 #include "mfrc630.h"
 #include "nrf_delay.h"
 
-#define UART_TX_BUF_SIZE                1024                                         /**< UART TX buffer size. */
-#define UART_RX_BUF_SIZE                1024                                         /**< UART RX buffer size. */
+#define UART_TX_BUF_SIZE                512                                         /**< UART TX buffer size. */
+#define UART_RX_BUF_SIZE                512                                         /**< UART RX buffer size. */
 
 static ble_nus_t                        m_nus;                                      /**< Structure to identify the Nordic UART Service. */
 static uint16_t                         m_ble_nus_max_data_len = BLE_GATT_ATT_MTU_DEFAULT - 3;  /**< Maximum length of data (in bytes) that can be transmitted to the peer by the Nordic UART service module. */
@@ -78,30 +78,6 @@ static void uart_init(void)
     APP_ERROR_CHECK(err_code);
 }
 
-void mfrc630_MF_example_dump() 
-{	
-  uint16_t atqa = mfrc630_iso14443a_REQA();
-  if (atqa != 0) {  
-    uint8_t sak;
-    uint8_t uid[10] = {0};
-
-    uint8_t uid_len = mfrc630_iso14443a_select(uid, &sak);
-	printf("uid_len = %d\n\r" ,uid_len);
-
-    if (uid_len != 0) { 
-	    printf("UID of %hhd bytes (SAK:0x%hhX): ", uid_len, sak);
-        mfrc630_print_block(uid, uid_len);
-	    printf("\n");
-
-		
-    } else {
-	  printf("Could not determine UID, perhaps some cards don't play");
-	  printf(" well with the other cards? Or too many collisions?\n");
-    }
-  } else {
-	  printf("No answer to REQA, no cards?\n");
-  }
-}
 
 int main(void)
 {
