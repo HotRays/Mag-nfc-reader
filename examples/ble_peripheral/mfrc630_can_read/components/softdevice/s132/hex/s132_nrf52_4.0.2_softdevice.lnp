@@ -1,7 +1,0 @@
---cpu Cortex-M4.fp
-"..\..\..\..\..\..\components\softdevice\s132\hex\main.o"
-"..\..\..\..\..\..\components\softdevice\s132\hex\arm_startup_nrf52.o"
---library_type=microlib --ro-base 0x00000000 --entry 0x00000000 --rw-base 0x20000000 --entry Reset_Handler --first __Vectors --strict
---diag_suppress 6330 --summary_stderr --info summarysizes --map --xref --callgraph --symbols
---info sizes --info totals --info unused --info veneers
---list ".\_build\s132_nrf52_4.0.2_softdevice.map" -o ..\..\..\..\..\..\components\softdevice\s132\hex\s132_nrf52_4.0.2_softdevice.hex
