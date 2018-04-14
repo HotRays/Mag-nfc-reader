@@ -123,9 +123,7 @@ static void nus_data_handler(ble_nus_t * p_nus, uint8_t * p_data, uint16_t lengt
 	{
 		app_uart_put(p_data[i]);
 	}
-//	uint8_t* str = "abc";
-//	ble_nus_string_send(&m_nus, str, strlen(str));   //发送消息到手机端
-    app_uart_put('1');
+
     NRF_LOG_HEXDUMP_DEBUG(p_data, length);
 
     for (uint32_t i = 0; i < length; i++)
@@ -145,7 +143,53 @@ static void nus_data_handler(ble_nus_t * p_nus, uint8_t * p_data, uint16_t lengt
         while (app_uart_put('\n') == NRF_ERROR_BUSY);
     }
 
+//		
+//	uint8_t* str = "abc";
+//	ble_nus_string_send(&m_nus, str, strlen(str));   //发送消息到手机端
+//    app_uart_put('1');		
+		
+		
 }
+
+static void receive_data_from_android(ble_nus_t * p_nus, uint8_t * p_data, uint16_t length)
+{
+    uint32_t err_code;
+
+  NRF_LOG_DEBUG("Received data from BLE NUS. Writing data on UART.\r\n");
+	ble_nus_string_send(&m_nus, p_data, length);
+	for(uint32_t i = 0; i < length; i++)
+	{
+		app_uart_put(p_data[i]);
+	}
+
+    NRF_LOG_HEXDUMP_DEBUG(p_data, length);
+
+    for (uint32_t i = 0; i < length; i++)
+    {
+        do
+        {
+            err_code = app_uart_put(p_data[i]);
+            if ((err_code != NRF_SUCCESS) && (err_code != NRF_ERROR_BUSY))
+            {
+                NRF_LOG_ERROR("Failed receiving NUS message. Error 0x%x. \r\n", err_code);
+                APP_ERROR_CHECK(err_code);
+            }
+        } while (err_code == NRF_ERROR_BUSY);
+    }
+    if (p_data[length-1] == '\r')
+    {
+        while (app_uart_put('\n') == NRF_ERROR_BUSY);
+    }
+
+//		
+//	uint8_t* str = "abc";
+//	ble_nus_string_send(&m_nus, str, strlen(str));   //发送消息到手机端
+//    app_uart_put('1');		
+		
+		
+}
+
+
 /**@snippet [Handling the data received over BLE] */
 
 
@@ -738,13 +782,3 @@ int main(void)
 //static void (*reset_this_CPU)(void) = 0x0000; 
 //reset_this_CPU(); //***跳到0x0000地址指针，也就是复位
 
-
-//	bsp_board_leds_init();
-//	nrf_gpio_pin_write(BSP_LED_0,0);
-//	nrf_gpio_pin_write(BSP_LED_1,1);
-
-//	nrf_delay_ms(1);
-
-//	nrf_gpio_pin_write(BSP_LED_0,1);
-//	nrf_gpio_pin_write(BSP_LED_1,0);
-//	nrf_delay_ms(1);

@@ -3,7 +3,7 @@
 <title>Static Call Graph - [.\_build\nrf52832_xxaa.axf]</title></head>
 <body><HR>
 <H1>Static Call Graph for image .\_build\nrf52832_xxaa.axf</H1><HR>
-<BR><P>#&#060CALLGRAPH&#062# ARM Linker, 5060020: Last Updated: Sat Apr 14 16:41:45 2018
+<BR><P>#&#060CALLGRAPH&#062# ARM Linker, 5060020: Last Updated: Sat Apr 14 16:52:32 2018
 <BR><P>
 <H3>Maximum Stack Usage =        432 bytes + Unknown(Cycles, Untraceable Function Pointers)</H3><H3>
 Call chain for Maximum Stack Depth:</H3>
@@ -345,7 +345,8 @@ Global Symbols
 </UL>
 
 <P><STRONG><a name="[16a]"></a>strlen</STRONG> (Thumb, 14 bytes, Stack size 0 bytes, strlen.o(.text))
-<BR><BR>[Called By]<UL><LI><a href="#[42]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;nrf_log_backend_serial_std_handler
+<BR><BR>[Called By]<UL><LI><a href="#[43]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;nus_data_handler
+<LI><a href="#[42]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;nrf_log_backend_serial_std_handler
 <LI><a href="#[41]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;nrf_log_backend_serial_hexdump_handler
 </UL>
 
@@ -1714,13 +1715,14 @@ Local Symbols
 <BR><BR>[Called By]<UL><LI><a href="#[2f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;main
 </UL>
 
-<P><STRONG><a name="[43]"></a>nus_data_handler</STRONG> (Thumb, 128 bytes, Stack size 32 bytes, main.o(i.nus_data_handler))
+<P><STRONG><a name="[43]"></a>nus_data_handler</STRONG> (Thumb, 162 bytes, Stack size 32 bytes, main.o(i.nus_data_handler))
 <BR><BR>[Stack]<UL><LI>Max Depth = 112<LI>Call Chain = nus_data_handler &rArr; app_uart_put &rArr; nrf_drv_uart_tx &rArr; nrf_drv_uart_tx_for_uart &rArr; tx_byte &rArr; nrf_uart_event_clear
 </UL>
 <BR>[Calls]<UL><LI><a href="#[146]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;nrf_log_frontend_std_1
 <LI><a href="#[12b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;ble_nus_string_send
 <LI><a href="#[ad]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;app_uart_put
 <LI><a href="#[64]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;app_error_handler_bare
+<LI><a href="#[16a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;strlen
 </UL>
 <BR>[Address Reference Count : 1]<UL><LI> main.o(i.services_init)
 </UL>
