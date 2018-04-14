@@ -152,7 +152,7 @@ static void nus_data_handler(ble_nus_t * p_nus, uint8_t * p_data, uint16_t lengt
 		
 }
 
-static void receive_data_from_android(ble_nus_t * p_nus, cJSON p_data)
+static void receive_data_from_android(ble_nus_t * p_nus, uint8_t * p_data, uint16_t length)
 {
 //uart 有接收时，到此处
 	
