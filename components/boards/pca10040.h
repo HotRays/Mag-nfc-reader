@@ -50,7 +50,7 @@ extern "C" {
 #define LEDS_NUMBER    4
 
 #define LED_START      17
-#define LED_1          17
+#define LED_1          21
 #define LED_2          18
 #define LED_3          19
 #define LED_4          20
@@ -86,10 +86,10 @@ extern "C" {
 #define BSP_BUTTON_2   BUTTON_3
 #define BSP_BUTTON_3   BUTTON_4
 
-#define RX_PIN_NUMBER  8
-#define TX_PIN_NUMBER  6
-#define CTS_PIN_NUMBER 7
-#define RTS_PIN_NUMBER 5
+#define RX_PIN_NUMBER  15
+#define TX_PIN_NUMBER  14
+#define CTS_PIN_NUMBER 0
+#define RTS_PIN_NUMBER 0
 #define HWFC           true
 	
 #define TWI_SDA                             16
@@ -177,7 +177,7 @@ extern "C" {
 #define ARDUINO_A5_PIN              31    // Analog channel 5
 
 // Low frequency clock source to be used by the SoftDevice
-#define NRF_CLOCK_LFCLKSRC      {.source        = NRF_CLOCK_LF_SRC_XTAL,            \
+#define NRF_CLOCK_LFCLKSRC      {.source        = NRF_CLOCK_LF_SRC_SYNTH,            \
                                  .rc_ctiv       = 0,                                \
                                  .rc_temp_ctiv  = 0,                                \
                                  .xtal_accuracy = NRF_CLOCK_LF_XTAL_ACCURACY_20_PPM}

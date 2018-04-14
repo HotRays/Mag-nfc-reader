@@ -1,5 +1,3 @@
-
-
 #ifndef MFRC630_H_
 #define MFRC630_H_
 #include <stdint.h>
@@ -88,7 +86,7 @@ uint16_t mfrc630_iso14443a_WUPA(void);
 
 uint16_t mfrc630_iso14443a_WUPA_REQA(uint8_t instruction);
 
-uint8_t mfrc630_iso14443a_select(uint8_t* uid, uint8_t* sak);
+uint8_t mfrc630_iso14443a_select( uint8_t* uid, uint8_t* sak);
 
 uint8_t mfrc630_MF_auth(const uint8_t* uid, uint8_t key_type, uint8_t block);
 

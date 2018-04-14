@@ -27,7 +27,32 @@ Project File Date:  04/11/2018
 <h2>Output:</h2>
 *** Using Compiler 'V5.06 (build 20)', folder: 'C:\Keil_v5\ARM\ARMCC\Bin'
 Build target 'nrf52832_xxaa'
-".\_build\nrf52832_xxaa.axf" - 0 Error(s), 0 Warning(s).
+compiling main.c...
+..\..\..\..\..\..\components\mfrc630\mfrc630.h(7): warning:  #47-D: incompatible redefinition of macro "NRF_LOG_MODULE_NAME" (declared at line 20 of "..\..\..\main.c")
+  #define  NRF_LOG_MODULE_NAME "mfrc630     "
+..\..\..\main.c(178): warning:  #513-D: a value of type "void (*)(ble_nus_t *, cJSON)" cannot be assigned to an entity of type "ble_nus_data_handler_t"
+          nus_init.data_handler = receive_data_from_android;
+..\..\..\main.c(746): warning:  #177-D: variable "reset_this_CPU" was declared but never referenced
+        static void (*reset_this_CPU)(void) = 0x0000; //Â§?‰Ω?Èá?Êñ?ÂºÄÂß?Áö?Âú?ÂùÄ
+..\..\..\main.c(117): warning:  #177-D: function "nus_data_handler" was declared but never referenced
+  static void nus_data_handler(ble_nus_t * p_nus, uint8_t * p_data, uint16_t length)
+..\..\..\main.c(671): warning:  #177-D: function "power_manage" was declared but never referenced
+  static void power_manage(void)
+..\..\..\main.c: 5 warnings, 0 errors
+compiling cjson.c...
+..\..\..\..\..\..\components\CJSON\cjson.c(55): warning:  #1293-D: assignment in condition
+        if (!(copy = (char*)cJSON_malloc(len))) return 0;
+..\..\..\..\..\..\components\CJSON\cjson.c(208): warning:  #1293-D: assignment in condition
+        ptr=str;while ((token=*ptr) && ++len) {if (strchr("\"\\\b\f\n\r\t",token)) len++; else if (token<32) len+=5;ptr++;}
+..\..\..\..\..\..\components\CJSON\cjson.c(325): warning:  #1293-D: assignment in condition
+                if (!(new_item=cJSON_New_Item())) return 0;     /* memory fail */
+..\..\..\..\..\..\components\CJSON\cjson.c(415): warning:  #1293-D: assignment in condition
+                if (!(new_item=cJSON_New_Item()))       return 0; /* memory fail */
+..\..\..\..\..\..\components\CJSON\cjson.c: 4 warnings, 0 errors
+linking...
+Program Size: Code=32800 RO-data=1388 RW-data=200 ZI-data=11336  
+FromELF: creating hex file...
+".\_build\nrf52832_xxaa.axf" - 0 Error(s), 9 Warning(s).
 
 <h2>Software Packages used:</h2>
 
@@ -57,7 +82,7 @@ Package Vendor: NordicSemiconductor
       Source file:   Device\Source\arm\arm_startup_nrf52.s
       Source file:   Device\Source\system_nrf52.c
       Include file:  Device\Include\system_nrf52.h
-Build Time Elapsed:  00:00:01
+Build Time Elapsed:  00:00:04
 </pre>
 </body>
 </html>
