@@ -24,6 +24,7 @@
 
 #include "nrf_log.h"
 #include "nrf_log_ctrl.h"
+#include "cJSON.h"
 
 #define CONN_CFG_TAG                    1                                           /**< A tag that refers to the BLE stack configuration we set with @ref sd_ble_cfg_set. Default tag is @ref BLE_CONN_CFG_TAG_DEFAULT. */
 
@@ -151,42 +152,13 @@ static void nus_data_handler(ble_nus_t * p_nus, uint8_t * p_data, uint16_t lengt
 		
 }
 
-static void receive_data_from_android(ble_nus_t * p_nus, uint8_t * p_data, uint16_t length)
+static void receive_data_from_android(ble_nus_t * p_nus, cJSON p_data)
 {
-    uint32_t err_code;
-
-  NRF_LOG_DEBUG("Received data from BLE NUS. Writing data on UART.\r\n");
-	ble_nus_string_send(&m_nus, p_data, length);
-	for(uint32_t i = 0; i < length; i++)
-	{
-		app_uart_put(p_data[i]);
-	}
-
-    NRF_LOG_HEXDUMP_DEBUG(p_data, length);
-
-    for (uint32_t i = 0; i < length; i++)
-    {
-        do
-        {
-            err_code = app_uart_put(p_data[i]);
-            if ((err_code != NRF_SUCCESS) && (err_code != NRF_ERROR_BUSY))
-            {
-                NRF_LOG_ERROR("Failed receiving NUS message. Error 0x%x. \r\n", err_code);
-                APP_ERROR_CHECK(err_code);
-            }
-        } while (err_code == NRF_ERROR_BUSY);
-    }
-    if (p_data[length-1] == '\r')
-    {
-        while (app_uart_put('\n') == NRF_ERROR_BUSY);
-    }
-
-//		
-//	uint8_t* str = "abc";
-//	ble_nus_string_send(&m_nus, str, strlen(str));   //发送消息到手机端
-//    app_uart_put('1');		
-		
-		
+//uart 有接收时，到此处
+	
+//提取status的值
+//判断status，进入对应的操作
+	
 }
 
 
@@ -202,7 +174,8 @@ static void services_init(void)
 
     memset(&nus_init, 0, sizeof(nus_init));
 
-    nus_init.data_handler = nus_data_handler;
+//    nus_init.data_handler = nus_data_handler;
+	  nus_init.data_handler = receive_data_from_android;
 
     err_code = ble_nus_init(&m_nus, &nus_init);
     APP_ERROR_CHECK(err_code);
@@ -541,7 +514,14 @@ void bsp_event_handler(bsp_event_t event)
                 }
             }
             break;
-
+				case BSP_EVENT_KEY_0:
+					  mfrc630_MF_example_dump();
+            break;
+				case BSP_EVENT_KEY_1:
+					  mfrc630_MF_example_dump();
+            break;				
+						
+						
         default:
             break;
     }
@@ -740,37 +720,35 @@ void mfrc630_MF_example_dump()
  */
 int main(void)
 {
-    uint32_t err_code;
-    bool     erase_bonds;
+	uint32_t err_code;
+	bool     erase_bonds;
 
-    // Initialize.
-    err_code = app_timer_init();
-    APP_ERROR_CHECK(err_code);
+	// Initialize.
+	err_code = app_timer_init();
+	APP_ERROR_CHECK(err_code);
 
-    uart_init();
-    log_init();
+	uart_init();
+	log_init();
 
-    buttons_leds_init(&erase_bonds);
-    ble_stack_init();
-    gap_params_init();
-    gatt_init();
-    services_init();
-    advertising_init();
-    conn_params_init();
-	
-	  mfrc630_twi_init();
-    mfrc630_AN1102_recommended_registers(MFRC630_PROTO_ISO14443A_106_MILLER_MANCHESTER);
-	
-	    bsp_board_leds_init();
+	buttons_leds_init(&erase_bonds);
+	ble_stack_init();
+	gap_params_init();
+	gatt_init();
+	services_init();
+	advertising_init();
+	conn_params_init();
 
-    err_code = ble_advertising_start(BLE_ADV_MODE_FAST);
-    APP_ERROR_CHECK(err_code);
+	mfrc630_twi_init();
+	mfrc630_AN1102_recommended_registers(MFRC630_PROTO_ISO14443A_106_MILLER_MANCHESTER);
 
+	err_code = ble_advertising_start(BLE_ADV_MODE_FAST);
+	APP_ERROR_CHECK(err_code);
+	static void (*reset_this_CPU)(void) = 0x0000; //复位重新开始的地址
 	uint8_t ii = 0;
 	for (;;)
 	{   
 		mfrc630_MF_example_dump();
-		nrf_delay_ms(1000);
+		nrf_delay_ms(50);
 		printf("count = %d\r\n\r", ii++);			
 	}
 }

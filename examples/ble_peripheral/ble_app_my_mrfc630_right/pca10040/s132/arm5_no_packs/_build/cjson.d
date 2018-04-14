@@ -1,0 +1,9 @@
+.\_build\cjson.o: ..\..\..\..\..\..\components\CJSON\cjson.c
+.\_build\cjson.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\string.h
+.\_build\cjson.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stdio.h
+.\_build\cjson.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\math.h
+.\_build\cjson.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stdlib.h
+.\_build\cjson.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\float.h
+.\_build\cjson.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\limits.h
+.\_build\cjson.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\ctype.h
+.\_build\cjson.o: ..\..\..\..\..\..\components\CJSON\cJSON.h
