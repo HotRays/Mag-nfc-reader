@@ -24,7 +24,6 @@
 
 #include "nrf_log.h"
 #include "nrf_log_ctrl.h"
-#include "cJSON.h"
 
 #define CONN_CFG_TAG                    1                                           /**< A tag that refers to the BLE stack configuration we set with @ref sd_ble_cfg_set. Default tag is @ref BLE_CONN_CFG_TAG_DEFAULT. */
 
@@ -55,6 +54,7 @@ static uint16_t                         m_conn_handle = BLE_CONN_HANDLE_INVALID;
 static nrf_ble_gatt_t                   m_gatt;                                     /**< GATT module instance. */
 static ble_uuid_t                       m_adv_uuids[] = {{BLE_UUID_NUS_SERVICE, NUS_SERVICE_UUID_TYPE}};  /**< Universally unique service identifier. */
 static uint16_t                         m_ble_nus_max_data_len = BLE_GATT_ATT_MTU_DEFAULT - 3;  /**< Maximum length of data (in bytes) that can be transmitted to the peer by the Nordic UART service module. */
+static void (*reset_this_CPU)(void) = 0x0000; //复位重新开始的地址
 
 
 /**@brief Function for assert macro callback.
@@ -157,8 +157,72 @@ static void receive_data_from_android(ble_nus_t * p_nus, uint8_t * p_data, uint1
 //uart 有接收时，到此处
 	
 //提取status的值
+	uint8_t * connect_auth = "auth";
+	uint32_t err_code;
+	uint8_t i = 0, j = 0, num = 0;
+	uint8_t at_data[5][10];
+  for(num = 0; num < length; num++)
+	{
+		if(p_data[num] == '+')
+		{
+			i++;
+			j = 0;
+		}
+		else
+		{
+		  at_data[i][j] = p_data[num];
+			j++;
+		}
+	}
 //判断status，进入对应的操作
-	
+	uint8_t status;
+	status = strcmp(at_data[1], "auth");
+	if(status = 0)  //认证  
+	{
+		uint8_t auth_status;
+		auth_status = strcmp(at_data[2],connect_auth);
+		
+		if(auth_status = 0)
+		{
+			uint8_t *re = "auth success";
+			ble_nus_string_send(&m_nus, re, sizeof(re));				
+		}
+		else
+		{
+			err_code = sd_ble_gap_disconnect(m_conn_handle, BLE_HCI_CONN_INTERVAL_UNACCEPTABLE);
+			APP_ERROR_CHECK(err_code);	
+		}
+	}
+	else
+	{
+		status = strcmp(at_data[1], "version");
+		if(status = 0) //版本
+		{
+		
+		}	
+		else
+		{
+			status = strcmp(at_data[1], "uid");
+			if(status = 0) //获取UID
+			{
+				mfrc630_MF_example_dump();		
+			}
+			else
+			{
+				status = strcmp(at_data[1], "reset");
+				if(status = 0) //复位
+				{
+					reset_this_CPU(); //***跳到0x0000地址指针，也就是复位
+					ble_nus_string_send(&m_nus, "fail", 5);
+				}	
+				else
+				{
+					uint8_t *re = "the data form app error";
+					ble_nus_string_send(&m_nus, re, sizeof(re));	
+				}
+			}
+		}
+	}
 }
 
 
@@ -743,18 +807,45 @@ int main(void)
 
 	err_code = ble_advertising_start(BLE_ADV_MODE_FAST);
 	APP_ERROR_CHECK(err_code);
-	static void (*reset_this_CPU)(void) = 0x0000; //复位重新开始的地址
+	
+//	uint8_t re1 = "ccess";
+//	ble_nus_string_send(&m_nus, re1, sizeof(re1));
+	
+	char re[20] = "RE+start success";
+	ble_nus_string_send(&m_nus, re, 18);
+
 	uint8_t ii = 0;
 	for (;;)
 	{   
 		mfrc630_MF_example_dump();
 		nrf_delay_ms(50);
 		printf("count = %d\r\n\r", ii++);			
+		
+
 	}
 }
 
 
-
+//  解包
+//  uint8_t * p_data;
+//	p_data = "AT+auth+123";
+//  uint8_t length = strlen(p_data);		
+//	uint8_t i = 0, j = 0, num = 0;
+//	uint8_t at_data[5][10];
+//  for(num = 0; num < length; num++)
+//	{
+//		if(p_data[num] == '+')
+//		{
+//			i++;
+//			j = 0;
+//		}
+//		else
+//		{
+//		  at_data[i][j] = p_data[num];
+//			j++;
+//		}
+//	}		
+		
 
 //复位 重启
 //static void (*reset_this_CPU)(void) = 0x0000; 
