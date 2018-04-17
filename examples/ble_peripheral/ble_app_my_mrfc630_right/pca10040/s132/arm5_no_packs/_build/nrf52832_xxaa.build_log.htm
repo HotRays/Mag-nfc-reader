@@ -22,51 +22,12 @@ Dialog DLL:      TCM.DLL V1.14.5.0
  
 <h2>Project:</h2>
 E:\Mag-nfc-reader\examples\ble_peripheral\ble_app_my_mrfc630_right\pca10040\s132\arm5_no_packs\ble_app_uart_pca10040_s132.uvprojx
-Project File Date:  04/14/2018
+Project File Date:  04/16/2018
 
 <h2>Output:</h2>
 *** Using Compiler 'V5.06 (build 20)', folder: 'C:\Keil_v5\ARM\ARMCC\Bin'
 Build target 'nrf52832_xxaa'
-compiling main.c...
-..\..\..\..\..\..\components\mfrc630\mfrc630.h(7): warning:  #47-D: incompatible redefinition of macro "NRF_LOG_MODULE_NAME" (declared at line 20 of "..\..\..\main.c")
-  #define  NRF_LOG_MODULE_NAME "mfrc630     "
-..\..\..\main.c(179): warning:  #167-D: argument of type "uint8_t *" is incompatible with parameter of type "const char *"
-        status = strcmp(at_data[1], "auth");
-..\..\..\main.c(180): warning:  #187-D: use of "=" where "==" may have been intended
-        if(status = 0)  //ËÆ?ËØ?  
-..\..\..\main.c(183): warning:  #167-D: argument of type "uint8_t *" is incompatible with parameter of type "const char *"
-                auth_status = strcmp(at_data[2],connect_auth);
-..\..\..\main.c(183): warning:  #167-D: argument of type "uint8_t *" is incompatible with parameter of type "const char *"
-                auth_status = strcmp(at_data[2],connect_auth);
-..\..\..\main.c(185): warning:  #187-D: use of "=" where "==" may have been intended
-                if(auth_status = 0)
-..\..\..\main.c(182): warning:  #550-D: variable "auth_status" was set but never used
-                uint8_t auth_status;
-..\..\..\main.c(198): warning:  #167-D: argument of type "uint8_t *" is incompatible with parameter of type "const char *"
-                status = strcmp(at_data[1], "version");
-..\..\..\main.c(199): warning:  #187-D: use of "=" where "==" may have been intended
-                if(status = 0) //Áâ?Êú?
-..\..\..\main.c(205): warning:  #167-D: argument of type "uint8_t *" is incompatible with parameter of type "const char *"
-                        status = strcmp(at_data[1], "uid");
-..\..\..\main.c(206): warning:  #187-D: use of "=" where "==" may have been intended
-                        if(status = 0) //Ëé?Âè?UID
-..\..\..\main.c(212): warning:  #167-D: argument of type "uint8_t *" is incompatible with parameter of type "const char *"
-                                status = strcmp(at_data[1], "reset");
-..\..\..\main.c(213): warning:  #187-D: use of "=" where "==" may have been intended
-                                if(status = 0) //Â§?‰Ω?
-..\..\..\main.c(178): warning:  #550-D: variable "status" was set but never used
-        uint8_t status;
-..\..\..\main.c(815): warning:  #167-D: argument of type "char *" is incompatible with parameter of type "uint8_t *"
-        ble_nus_string_send(&m_nus, re, 18);
-..\..\..\main.c(117): warning:  #177-D: function "nus_data_handler" was declared but never referenced
-  static void nus_data_handler(ble_nus_t * p_nus, uint8_t * p_data, uint16_t length)
-..\..\..\main.c(735): warning:  #177-D: function "power_manage" was declared but never referenced
-  static void power_manage(void)
-..\..\..\main.c: 17 warnings, 0 errors
-linking...
-Program Size: Code=30992 RO-data=1408 RW-data=200 ZI-data=11336  
-FromELF: creating hex file...
-".\_build\nrf52832_xxaa.axf" - 0 Error(s), 17 Warning(s).
+".\_build\nrf52832_xxaa.axf" - 0 Error(s), 0 Warning(s).
 
 <h2>Software Packages used:</h2>
 
@@ -96,7 +57,7 @@ Package Vendor: NordicSemiconductor
       Source file:   Device\Source\arm\arm_startup_nrf52.s
       Source file:   Device\Source\system_nrf52.c
       Include file:  Device\Include\system_nrf52.h
-Build Time Elapsed:  00:00:03
+Build Time Elapsed:  00:00:01
 </pre>
 </body>
 </html>

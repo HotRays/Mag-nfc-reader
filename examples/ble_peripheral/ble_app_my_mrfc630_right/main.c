@@ -1,4 +1,3 @@
-
 #include <stdint.h>
 #include <string.h>
 #include "nordic_common.h"
@@ -21,7 +20,7 @@
 #include "nrf_drv_twi.h"
 #include "mfrc630.h"
 #include "nrf_delay.h"
-
+#include "ble_dfu.h"
 #include "nrf_log.h"
 #include "nrf_log_ctrl.h"
 
@@ -48,8 +47,16 @@
 #define UART_TX_BUF_SIZE                512                                         /**< UART TX buffer size. */
 #define UART_RX_BUF_SIZE                512                                         /**< UART RX buffer size. */
 
+/**@brief Thingy FW version.
+* 0xFF indicates a custom build from source. 
+Version numbers are changed for releases. */
+#define THINGY_FW_VERSION_MAJOR     (0xFF)
+#define THINGY_FW_VERSION_MINOR     (0xFF)
+#define THINGY_FW_VERSION_PATCH     (0xFF)
+
 static ble_nus_t                        m_nus;                                      /**< Structure to identify the Nordic UART Service. */
 static uint16_t                         m_conn_handle = BLE_CONN_HANDLE_INVALID;    /**< Handle of the current connection. */
+static ble_dfu_t      m_dfus;                                                       /**< Structure used to identify the DFU service. */
 
 static nrf_ble_gatt_t                   m_gatt;                                     /**< GATT module instance. */
 static ble_uuid_t                       m_adv_uuids[] = {{BLE_UUID_NUS_SERVICE, NUS_SERVICE_UUID_TYPE}};  /**< Universally unique service identifier. */
@@ -177,14 +184,14 @@ static void receive_data_from_android(ble_nus_t * p_nus, uint8_t * p_data, uint1
 //判断status，进入对应的操作
 	uint8_t status;
 	status = strcmp(at_data[1], "auth");
-	if(status = 0)  //认证  
+	if(status == 0)  //认证  
 	{
 		uint8_t auth_status;
 		auth_status = strcmp(at_data[2],connect_auth);
 		
-		if(auth_status = 0)
+		if(auth_status == 0)
 		{
-			uint8_t *re = "auth success";
+			uint8_t *re = "RE+auth success";
 			ble_nus_string_send(&m_nus, re, sizeof(re));				
 		}
 		else
@@ -196,28 +203,28 @@ static void receive_data_from_android(ble_nus_t * p_nus, uint8_t * p_data, uint1
 	else
 	{
 		status = strcmp(at_data[1], "version");
-		if(status = 0) //版本
+		if(status == 0) //版本
 		{
 		
 		}	
 		else
 		{
 			status = strcmp(at_data[1], "uid");
-			if(status = 0) //获取UID
+			if(status == 0) //获取UID
 			{
 				mfrc630_MF_example_dump();		
 			}
 			else
 			{
 				status = strcmp(at_data[1], "reset");
-				if(status = 0) //复位
+				if(status == 0) //复位
 				{
 					reset_this_CPU(); //***跳到0x0000地址指针，也就是复位
-					ble_nus_string_send(&m_nus, "fail", 5);
+					ble_nus_string_send(&m_nus, "RE+fail", 5);
 				}	
 				else
 				{
-					uint8_t *re = "the data form app error";
+					uint8_t *re = "RE+the data form app error";
 					ble_nus_string_send(&m_nus, re, sizeof(re));	
 				}
 			}
@@ -228,6 +235,27 @@ static void receive_data_from_android(ble_nus_t * p_nus, uint8_t * p_data, uint1
 
 /**@snippet [Handling the data received over BLE] */
 
+static void ble_dfu_evt_handler(ble_dfu_t * p_dfu, ble_dfu_evt_t * p_evt)
+{
+    switch (p_evt->type)
+    {
+        case BLE_DFU_EVT_INDICATION_DISABLED:
+            NRF_LOG_INFO("Indication for BLE_DFU is disabled.\r\n");
+            break;
+
+        case BLE_DFU_EVT_INDICATION_ENABLED:
+            NRF_LOG_INFO("Indication for BLE_DFU is enabled.\r\n");
+            break;
+
+        case BLE_DFU_EVT_ENTERING_BOOTLOADER:
+            NRF_LOG_INFO("Device is requested to enter bootloader mode!\r\n");
+            break;
+
+        default:
+            NRF_LOG_INFO("Unknown event from ble_dfu.\r\n");
+            break;
+    }
+}
 
 /**@brief Function for initializing services that will be used by the application.
  */
@@ -238,11 +266,24 @@ static void services_init(void)
 
     memset(&nus_init, 0, sizeof(nus_init));
 
-//    nus_init.data_handler = nus_data_handler;
+    nus_init.data_handler = nus_data_handler;
 	  nus_init.data_handler = receive_data_from_android;
 
     err_code = ble_nus_init(&m_nus, &nus_init);
     APP_ERROR_CHECK(err_code);
+	
+    ble_dfu_init_t dfus_init;
+
+    // Initialize the Device Firmware Update Service.
+    memset(&dfus_init, 0, sizeof(dfus_init));
+
+    dfus_init.evt_handler                               = ble_dfu_evt_handler;
+    dfus_init.ctrl_point_security_req_write_perm        = SEC_SIGNED;
+    dfus_init.ctrl_point_security_req_cccd_write_perm   = SEC_SIGNED;
+
+    err_code = ble_dfu_init(&m_dfus, &dfus_init);
+    APP_ERROR_CHECK(err_code);
+	
 }
 
 
@@ -464,6 +505,7 @@ static void ble_evt_dispatch(ble_evt_t * p_ble_evt)
     on_ble_evt(p_ble_evt);
     ble_advertising_on_ble_evt(p_ble_evt);
     bsp_btn_ble_on_ble_evt(p_ble_evt);
+		ble_dfu_on_ble_evt(&m_dfus, p_ble_evt);
 
 }
 
@@ -767,7 +809,7 @@ void mfrc630_MF_example_dump()
 	    printf("\r\n");
 			
 			
-			ble_nus_string_send(&m_nus, uid, 4);
+			？？ble_nus_string_send(&m_nus, uid, 4);
 
 
     } else {
@@ -807,9 +849,6 @@ int main(void)
 
 	err_code = ble_advertising_start(BLE_ADV_MODE_FAST);
 	APP_ERROR_CHECK(err_code);
-	
-//	uint8_t re1 = "ccess";
-//	ble_nus_string_send(&m_nus, re1, sizeof(re1));
 	
 	char re[20] = "RE+start success";
 	ble_nus_string_send(&m_nus, re, 18);
@@ -851,3 +890,34 @@ int main(void)
 //static void (*reset_this_CPU)(void) = 0x0000; 
 //reset_this_CPU(); //***跳到0x0000地址指针，也就是复位
 
+
+
+
+
+uint8_t hex_to_char(uint8_t * temp, uint8_t len)
+{
+	uint8_t str[len*2];
+	uint8_t dst[len*2];
+	uint8_t i = 0;
+	for(i = 0; i<len;i++)
+	{
+			str[2*i] = temp[i]>>4;
+			str[2*i+1] = temp[i]&0xf;
+	}
+			for(i = 0; i<(len*2);i++)
+	{
+			dst[i] = HexToChar(str[i]);
+	}	
+	
+}
+
+uint8_t HexToChar(uint8_t temp)
+{
+    uint8_t dst;
+    if (temp < 10){
+        dst = temp + '0';
+    }else{
+        dst = temp -10 +'A';
+    }
+    return dst;
+}

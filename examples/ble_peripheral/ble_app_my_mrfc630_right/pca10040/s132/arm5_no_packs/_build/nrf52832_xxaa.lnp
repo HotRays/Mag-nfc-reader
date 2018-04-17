@@ -8,6 +8,7 @@
 ".\_build\nrf_drv_twi.o"
 ".\_build\twi_manager.o"
 ".\_build\mfrc630.o"
+".\_build\ble_dfu.o"
 ".\_build\ble_advdata.o"
 ".\_build\ble_advertising.o"
 ".\_build\ble_conn_params.o"
