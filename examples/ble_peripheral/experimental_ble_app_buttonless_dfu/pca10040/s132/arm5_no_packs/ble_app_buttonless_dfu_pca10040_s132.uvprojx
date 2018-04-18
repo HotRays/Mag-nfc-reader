@@ -644,6 +644,11 @@
                 </FileArmAds>
               </FileOption>
             </File>
+            <File>
+              <FileName>dfu_public_key.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\dfu_public_key.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -3400,6 +3405,11 @@
                   </Cads>
                 </FileArmAds>
               </FileOption>
+            </File>
+            <File>
+              <FileName>dfu_public_key.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\dfu_public_key.c</FilePath>
             </File>
           </Files>
         </Group>

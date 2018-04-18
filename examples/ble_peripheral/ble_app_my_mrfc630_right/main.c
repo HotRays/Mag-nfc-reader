@@ -23,6 +23,8 @@
 #include "ble_dfu.h"
 #include "nrf_log.h"
 #include "nrf_log_ctrl.h"
+#include "hextochar.h"
+
 
 #define CONN_CFG_TAG                    1                                           /**< A tag that refers to the BLE stack configuration we set with @ref sd_ble_cfg_set. Default tag is @ref BLE_CONN_CFG_TAG_DEFAULT. */
 
@@ -62,6 +64,7 @@ static nrf_ble_gatt_t                   m_gatt;                                 
 static ble_uuid_t                       m_adv_uuids[] = {{BLE_UUID_NUS_SERVICE, NUS_SERVICE_UUID_TYPE}};  /**< Universally unique service identifier. */
 static uint16_t                         m_ble_nus_max_data_len = BLE_GATT_ATT_MTU_DEFAULT - 3;  /**< Maximum length of data (in bytes) that can be transmitted to the peer by the Nordic UART service module. */
 static void (*reset_this_CPU)(void) = 0x0000; //复位重新开始的地址
+uint8_t mfrc630_MF_example_dump(void); 
 
 
 /**@brief Function for assert macro callback.
@@ -151,23 +154,16 @@ static void nus_data_handler(ble_nus_t * p_nus, uint8_t * p_data, uint16_t lengt
         while (app_uart_put('\n') == NRF_ERROR_BUSY);
     }
 
-//		
-//	uint8_t* str = "abc";
-//	ble_nus_string_send(&m_nus, str, strlen(str));   //发送消息到手机端
-//    app_uart_put('1');		
-		
-		
 }
 
 static void receive_data_from_android(ble_nus_t * p_nus, uint8_t * p_data, uint16_t length)
 {
 //uart 有接收时，到此处
-	
+	printf("received data = %s\r\n", p_data);
 //提取status的值
-	uint8_t * connect_auth = "auth";
 	uint32_t err_code;
 	uint8_t i = 0, j = 0, num = 0;
-	uint8_t at_data[5][10];
+	uint8_t at_data[5][10] = {0};
   for(num = 0; num < length; num++)
 	{
 		if(p_data[num] == '+')
@@ -181,51 +177,83 @@ static void receive_data_from_android(ble_nus_t * p_nus, uint8_t * p_data, uint1
 			j++;
 		}
 	}
+	
 //判断status，进入对应的操作
 	uint8_t status;
-	status = strcmp(at_data[1], "auth");
-	if(status == 0)  //认证  
+	status = strcmp(at_data[0], "AT");
+	if(status == 0)
 	{
-		uint8_t auth_status;
-		auth_status = strcmp(at_data[2],connect_auth);
-		
-		if(auth_status == 0)
+		status = strcmp(at_data[1], "auth");
+		if(status == 0)  //认证  
 		{
-			uint8_t *re = "RE+auth success";
-			ble_nus_string_send(&m_nus, re, sizeof(re));				
-		}
-		else
-		{
-			err_code = sd_ble_gap_disconnect(m_conn_handle, BLE_HCI_CONN_INTERVAL_UNACCEPTABLE);
-			APP_ERROR_CHECK(err_code);	
-		}
-	}
-	else
-	{
-		status = strcmp(at_data[1], "version");
-		if(status == 0) //版本
-		{
-		
-		}	
-		else
-		{
-			status = strcmp(at_data[1], "uid");
-			if(status == 0) //获取UID
+			uint8_t auth_status;
+			auth_status = strcmp(at_data[2],"auth");
+			printf("auth check in = %s\r\n", at_data[2]);
+			printf("auth status = %d\r\n", status);
+
+			if(auth_status == 0)
 			{
-				mfrc630_MF_example_dump();		
+				uint8_t *re = "RE+auth+success";
+				ble_nus_string_send(&m_nus, re, strlen(re));				
 			}
+			if(auth_status != 0)
+			{
+				uint8_t *re = "RE+auth+fail";
+				ble_nus_string_send(&m_nus, re, strlen(re));						
+				err_code = sd_ble_gap_disconnect(m_conn_handle, BLE_HCI_CONN_INTERVAL_UNACCEPTABLE);
+				APP_ERROR_CHECK(err_code);	
+			}
+		}
+		else
+		{
+			status = strcmp(at_data[1], "version");
+			if(status == 0) //版本
+			{
+				uint8_t version[5]; 
+				uint8_t *version_p;
+				version_p = version;
+				uint8_t test[1] = {THINGY_FW_VERSION_MAJOR};
+				version_p = hex_to_char_version(test, 1);
+				printf("version_p = %s",version_p);
+				uint8_t re_str[20] = "RE+version+";
+				strcat(re_str, version_p);
+				printf("uid_str_p = %s\r\n", re_str);
+				ble_nus_string_send(&m_nus, re_str, strlen(re_str)); 			
+				
+			}	
 			else
 			{
-				status = strcmp(at_data[1], "reset");
-				if(status == 0) //复位
+				status = strcmp(at_data[1], "uid");
+				printf("uid status = %d\r\n", status);
+				printf("the uid data is %s\r\n", at_data[1]);
+				if(status == 0) //获取UID
 				{
-					reset_this_CPU(); //***跳到0x0000地址指针，也就是复位
-					ble_nus_string_send(&m_nus, "RE+fail", 5);
-				}	
+					uint8_t i;
+					uint8_t stat;
+					for(i = 0; i < 20; i++)
+					{
+						stat = mfrc630_MF_example_dump();
+						if(stat == 1)
+							break;
+						nrf_delay_ms(50);
+					}						
+				}
 				else
 				{
-					uint8_t *re = "RE+the data form app error";
-					ble_nus_string_send(&m_nus, re, sizeof(re));	
+					status = strcmp(at_data[1], "reset");
+					if(status == 0) //复位
+					{
+						uint8_t *re = "RE+reset+now start reset,please connect again";
+						ble_nus_string_send(&m_nus, re, strlen(re));						
+						reset_this_CPU(); //***跳到0x0000地址指针，也就是复位
+						re = "RE+reset+fail";
+						ble_nus_string_send(&m_nus, re, strlen(re));
+					}	
+					else
+					{
+						uint8_t *re = "RE+reset+the data form app error";
+						ble_nus_string_send(&m_nus, re, strlen(re));	
+					}
 				}
 			}
 		}
@@ -784,41 +812,37 @@ static void power_manage(void)
 // ---------------------------------------------------------------------------
 // example
 // ---------------------------------------------------------------------------
-void mfrc630_MF_example_dump() 
+uint8_t mfrc630_MF_example_dump(void) 
 {	
-  uint16_t atqa = mfrc630_iso14443a_REQA();
-  if (atqa != 0) {  // Are there any cards that answered?
-    uint8_t sak;
-    uint8_t uid[10] = {0};  // uids are maximum of 10 bytes long.
+	uint16_t atqa = mfrc630_iso14443a_REQA();
+	if (atqa != 0) {  // Are there any cards that answered?
+		uint8_t sak;
+		uint8_t uid[10] = {0};  // uids are maximum of 10 bytes long.
 
-// Select the card and discover its uid.	
-	uint8_t uid_len = mfrc630_iso14443a_select(uid, &sak);
+		// Select the card and discover its uid.	
+		uint8_t uid_len = mfrc630_iso14443a_select(uid, &sak);
 
-	printf("uid_len = %d\r\n\r" ,uid_len);
-
-    if (uid_len != 0) { // did we get an UID? 
-	    printf("UID of %hhd bytes (SAK:0x%hhX): ", uid_len, sak);
-      mfrc630_print_block(uid, uid_len);
-	    printf("\r\n");
+		if (uid_len != 0) { // did we get an UID? 		
 			
-			uint8_t i;
-			for(i = 0; i < uid_len; i++)
-			{
-				printf("%d ", uid[i]);
-			}
-	    printf("\r\n");
-			
-			
-			？？ble_nus_string_send(&m_nus, uid, 4);
-
-
-    } else {
-	  printf("Could not determine UID, perhaps some cards don't play");
-	  printf(" well with the other cards? Or too many collisions?\r\n");
-    }
-  }else {
-	  printf("No answer to REQA, no cards?\r\n");
-  }
+			uint8_t uid_str[9];
+			uint8_t *uid_str_p;
+			uid_str_p = uid_str;
+			uid_str_p = hex_to_char_uid(uid, uid_len);			
+			uint8_t re_str[20] = "RE+uid+";
+			strcat(re_str, uid_str_p);
+			printf("uid_str_p = %s\r\n", re_str);
+			ble_nus_string_send(&m_nus, re_str, 20); 
+			return 1;
+ 			
+		} else {
+		printf("Could not determine UID, perhaps some cards don't play");
+		printf(" well with the other cards? Or too many collisions?\r\n");
+		return 0;
+		}
+	}else {
+	printf("No answer to REQA, no cards?\r\n");
+	return 0;
+	}
 }
 
 
@@ -851,16 +875,17 @@ int main(void)
 	APP_ERROR_CHECK(err_code);
 	
 	char re[20] = "RE+start success";
-	ble_nus_string_send(&m_nus, re, 18);
+	ble_nus_string_send(&m_nus, re, strlen(re));
 
-	uint8_t ii = 0;
 	for (;;)
 	{   
-		mfrc630_MF_example_dump();
-		nrf_delay_ms(50);
-		printf("count = %d\r\n\r", ii++);			
-		
-
+		if (NRF_LOG_PROCESS() == false)
+		{
+				power_manage();
+		}		
+//		mfrc630_MF_example_dump();
+//		nrf_delay_ms(500);
+//		printf("count = %d\r\n\r", ii++);			
 	}
 }
 
@@ -891,33 +916,56 @@ int main(void)
 //reset_this_CPU(); //***跳到0x0000地址指针，也就是复位
 
 
+//void mfrc630_MF_example_dump() 
+//{	
+//	uint16_t atqa = mfrc630_iso14443a_REQA();
+//	if (atqa != 0) {  // Are there any cards that answered?
+//		uint8_t sak;
+//		uint8_t uid[10] = {0};  // uids are maximum of 10 bytes long.
+
+//		// Select the card and discover its uid.	
+//		uint8_t uid_len = mfrc630_iso14443a_select(uid, &sak);
+
+//		printf("uid_len = %d\r\n\r" ,uid_len);
+
+//		if (uid_len != 0) { // did we get an UID? 
+//			printf("UID of %hhd bytes (SAK:0x%hhX): ", uid_len, sak);
+//			mfrc630_print_block(uid, uid_len);
+//			printf("\r\n");
+
+//			uint8_t i;
+//			for(i = 0; i < uid_len; i++){
+//				printf("%d ", uid[i]);
+//			}
+//			printf("\r\n");
+//			
+//			uint8_t uid_str[9];
+//			uint8_t *uid_str_p;
+//			uid_str_p = uid_str;
+
+//			uid_str_p = hex_to_char(uid, uid_len);
+//			
+//			uint8_t re_str[20] = "RE+uid+";
+//			strcat(re_str, uid_str_p);
+//			printf("uid_str_p = %s\r\n", re_str);
+//			ble_nus_string_send(&m_nus, re_str, 20); 
+// 			
+
+////			ble_nus_string_send(&m_nus, uid, uid_len);       //
+//      
+
+//		} else {
+//		printf("Could not determine UID, perhaps some cards don't play");
+//		printf(" well with the other cards? Or too many collisions?\r\n");
+//		}
+//	}else {
+//	printf("No answer to REQA, no cards?\r\n");
+//	}
+//}
 
 
 
-uint8_t hex_to_char(uint8_t * temp, uint8_t len)
-{
-	uint8_t str[len*2];
-	uint8_t dst[len*2];
-	uint8_t i = 0;
-	for(i = 0; i<len;i++)
-	{
-			str[2*i] = temp[i]>>4;
-			str[2*i+1] = temp[i]&0xf;
-	}
-			for(i = 0; i<(len*2);i++)
-	{
-			dst[i] = HexToChar(str[i]);
-	}	
-	
-}
+// 认证  auth 直接断（应该返回正确）
+// version 返回不正确
 
-uint8_t HexToChar(uint8_t temp)
-{
-    uint8_t dst;
-    if (temp < 10){
-        dst = temp + '0';
-    }else{
-        dst = temp -10 +'A';
-    }
-    return dst;
-}
+
