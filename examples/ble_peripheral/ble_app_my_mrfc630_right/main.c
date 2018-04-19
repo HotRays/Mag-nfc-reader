@@ -46,8 +46,8 @@
 
 #define DEAD_BEEF                       0xDEADBEEF                                  /**< Value used as error code on stack dump, can be used to identify stack location on stack unwind. */
 
-#define UART_TX_BUF_SIZE                512                                         /**< UART TX buffer size. */
-#define UART_RX_BUF_SIZE                512                                         /**< UART RX buffer size. */
+#define UART_TX_BUF_SIZE                256                                         /**< UART TX buffer size. */
+#define UART_RX_BUF_SIZE                256                                         /**< UART RX buffer size. */
 
 /**@brief Thingy FW version.
 * 0xFF indicates a custom build from source. 
@@ -657,16 +657,19 @@ void bsp_event_handler(bsp_event_t event)
 					break;
 				nrf_delay_ms(50);
 			}
+			if(BSP_EVENT_KEY_0 == 1)
 			break;
 		case BSP_EVENT_KEY_1:
 			for(i = 0; i < 20; i++)
 			{
 				stat = mfrc630_MF_example_dump();
 				if(stat == 1)
-				break;
+					break;
 				nrf_delay_ms(50);
 			}
-			break;				
+			if((BSP_EVENT_KEY_1 & 0x01) == 1)   
+//			if(((BSP_EVENT_KEY_1 << 1) & 1)  == 1)   ??按键的值是怎么存储在bsp_event_t中的
+				break;				
 
 		default:
 			break;
@@ -835,7 +838,6 @@ uint8_t mfrc630_MF_example_dump(void)
 		uint8_t uid_len = mfrc630_iso14443a_select(uid, &sak);
 
 		if (uid_len != 0) { // did we get an UID? 		
-			
 			uint8_t uid_str[9];
 			uint8_t *uid_str_p;
 			uid_str_p = uid_str;
@@ -846,7 +848,7 @@ uint8_t mfrc630_MF_example_dump(void)
 			ble_nus_string_send(&m_nus, re_str, 20); 
 			return 1;
 		} else {
-			NRF_LOG_INFO("Could not determine UID, perhaps some cards don't play");
+			NRF_LOG_INFO("Could not determine UID, perhaps some cards don't play\r\n");
 			NRF_LOG_INFO(" well with the other cards? Or too many collisions?\r\n");
 			return 0;
 		}
@@ -869,8 +871,7 @@ int main(void)
 	APP_ERROR_CHECK(err_code);
 
 	uart_init();
-	log_init();
-
+	log_init();  //sdk_config.h 3727
 	buttons_leds_init(&erase_bonds);
 	ble_stack_init();
 	gap_params_init();
@@ -878,7 +879,6 @@ int main(void)
 	services_init();
 	advertising_init();
 	conn_params_init();
-
 	mfrc630_twi_init();
 	mfrc630_AN1102_recommended_registers(MFRC630_PROTO_ISO14443A_106_MILLER_MANCHESTER);
 
@@ -899,84 +899,5 @@ int main(void)
 		printf("\r\n\r\n");			
 	}
 }
-
-
-//  解包
-//  uint8_t * p_data;
-//	p_data = "AT+auth+123";
-//  uint8_t length = strlen(p_data);		
-//	uint8_t i = 0, j = 0, num = 0;
-//	uint8_t at_data[5][10];
-//  for(num = 0; num < length; num++)
-//	{
-//		if(p_data[num] == '+')
-//		{
-//			i++;
-//			j = 0;
-//		}
-//		else
-//		{
-//		  at_data[i][j] = p_data[num];
-//			j++;
-//		}
-//	}		
-		
-
-//复位 重启
-//static void (*reset_this_CPU)(void) = 0x0000; 
-//reset_this_CPU(); //***跳到0x0000地址指针，也就是复位
-
-
-//void mfrc630_MF_example_dump() 
-//{	
-//	uint16_t atqa = mfrc630_iso14443a_REQA();
-//	if (atqa != 0) {  // Are there any cards that answered?
-//		uint8_t sak;
-//		uint8_t uid[10] = {0};  // uids are maximum of 10 bytes long.
-
-//		// Select the card and discover its uid.	
-//		uint8_t uid_len = mfrc630_iso14443a_select(uid, &sak);
-
-//		printf("uid_len = %d\r\n\r" ,uid_len);
-
-//		if (uid_len != 0) { // did we get an UID? 
-//			printf("UID of %hhd bytes (SAK:0x%hhX): ", uid_len, sak);
-//			mfrc630_print_block(uid, uid_len);
-//			printf("\r\n");
-
-//			uint8_t i;
-//			for(i = 0; i < uid_len; i++){
-//				printf("%d ", uid[i]);
-//			}
-//			printf("\r\n");
-//			
-//			uint8_t uid_str[9];
-//			uint8_t *uid_str_p;
-//			uid_str_p = uid_str;
-
-//			uid_str_p = hex_to_char(uid, uid_len);
-//			
-//			uint8_t re_str[20] = "RE+uid+";
-//			strcat(re_str, uid_str_p);
-//			printf("uid_str_p = %s\r\n", re_str);
-//			ble_nus_string_send(&m_nus, re_str, 20); 
-// 			
-
-////			ble_nus_string_send(&m_nus, uid, uid_len);       //
-//      
-
-//		} else {
-//		printf("Could not determine UID, perhaps some cards don't play");
-//		printf(" well with the other cards? Or too many collisions?\r\n");
-//		}
-//	}else {
-//	printf("No answer to REQA, no cards?\r\n");
-//	}
-//}
-
-
-
-// 认证  auth 直接断（应该返回正确）
-// version 返回不正确
 
 
