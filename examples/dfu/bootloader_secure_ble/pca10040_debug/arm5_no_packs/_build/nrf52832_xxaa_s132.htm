@@ -3,7 +3,7 @@
 <title>Static Call Graph - [.\_build\nrf52832_xxaa_s132.axf]</title></head>
 <body><HR>
 <H1>Static Call Graph for image .\_build\nrf52832_xxaa_s132.axf</H1><HR>
-<BR><P>#&#060CALLGRAPH&#062# ARM Linker, 5060020: Last Updated: Mon Apr 16 19:15:15 2018
+<BR><P>#&#060CALLGRAPH&#062# ARM Linker, 5060020: Last Updated: Wed Apr 18 18:14:09 2018
 <BR><P>
 <H3>Maximum Stack Usage =       3160 bytes + Unknown(Cycles, Untraceable Function Pointers)</H3><H3>
 Call chain for Maximum Stack Depth:</H3>
@@ -23,8 +23,8 @@ Mutually Recursive functions
  <LI><a href="#[19]">CCM_AAR_IRQHandler</a>&nbsp;&nbsp;&nbsp;&rArr;&nbsp;&nbsp;&nbsp;<a href="#[19]">CCM_AAR_IRQHandler</a><BR>
  <LI><a href="#[125]">pb_read</a>&nbsp;&nbsp;&nbsp;&rArr;&nbsp;&nbsp;&nbsp;<a href="#[125]">pb_read</a><BR>
  <LI><a href="#[12f]">pb_field_set_to_default</a>&nbsp;&nbsp;&nbsp;&rArr;&nbsp;&nbsp;&nbsp;<a href="#[c1]">pb_message_set_to_defaults</a><BR>
- <LI><a href="#[6d]">uECC_vli_numBits</a>&nbsp;&nbsp;&nbsp;&rArr;&nbsp;&nbsp;&nbsp;<a href="#[6d]">uECC_vli_numBits</a><BR>
  <LI><a href="#[61]">bcopy</a>&nbsp;&nbsp;&nbsp;&rArr;&nbsp;&nbsp;&nbsp;<a href="#[61]">bcopy</a><BR>
+ <LI><a href="#[6d]">uECC_vli_numBits</a>&nbsp;&nbsp;&nbsp;&rArr;&nbsp;&nbsp;&nbsp;<a href="#[6d]">uECC_vli_numBits</a><BR>
 </UL>
 <P>
 <H3>
@@ -428,7 +428,9 @@ Global Symbols
 <P><STRONG><a name="[6a]"></a>uECC_verify</STRONG> (Thumb, 724 bytes, Stack size 1920 bytes, micro_ecc_lib_uECC.c.o(.text.uECC_verify))
 <BR><BR>[Stack]<UL><LI>Max Depth = 2960<LI>Call Chain = uECC_verify &rArr; uECC_vli_modMult &rArr; uECC_vli_mmod &rArr; uECC_vli_set
 </UL>
-<BR>[Calls]<UL><LI><a href="#[6b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;uECC_vli_modInv
+<BR>[Calls]<UL><LI><a href="#[64]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;uECC_vli_cmp_unsafe
+<LI><a href="#[61]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;bcopy
+<LI><a href="#[6b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;uECC_vli_modInv
 <LI><a href="#[5e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;uECC_vli_modMult_fast
 <LI><a href="#[6c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;uECC_vli_modMult
 <LI><a href="#[5c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;uECC_vli_modSub
@@ -442,8 +444,6 @@ Global Symbols
 <LI><a href="#[60]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;apply_z
 <LI><a href="#[5b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;XYcZ_add
 <LI><a href="#[62]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;bits2int
-<LI><a href="#[64]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;uECC_vli_cmp_unsafe
-<LI><a href="#[61]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;bcopy
 </UL>
 <BR>[Called By]<UL><LI><a href="#[ca]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;nrf_crypto_ecdsa_verify_hash
 </UL>
@@ -462,10 +462,10 @@ Global Symbols
 <P><STRONG><a name="[63]"></a>uECC_vli_clear</STRONG> (Thumb, 24 bytes, Stack size 32 bytes, micro_ecc_lib_uECC.c.o(.text.uECC_vli_clear))
 <BR><BR>[Stack]<UL><LI>Max Depth = 32<LI>Call Chain = uECC_vli_clear
 </UL>
-<BR>[Called By]<UL><LI><a href="#[6b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;uECC_vli_modInv
+<BR>[Called By]<UL><LI><a href="#[6a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;uECC_verify
+<LI><a href="#[6b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;uECC_vli_modInv
 <LI><a href="#[70]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;uECC_vli_mmod
 <LI><a href="#[62]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;bits2int
-<LI><a href="#[6a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;uECC_verify
 </UL>
 
 <P><STRONG><a name="[6f]"></a>uECC_vli_equal</STRONG> (Thumb, 42 bytes, Stack size 48 bytes, micro_ecc_lib_uECC.c.o(.text.uECC_vli_equal))
@@ -477,9 +477,9 @@ Global Symbols
 <P><STRONG><a name="[66]"></a>uECC_vli_isZero</STRONG> (Thumb, 30 bytes, Stack size 32 bytes, micro_ecc_lib_uECC.c.o(.text.uECC_vli_isZero))
 <BR><BR>[Stack]<UL><LI>Max Depth = 32<LI>Call Chain = uECC_vli_isZero
 </UL>
-<BR>[Called By]<UL><LI><a href="#[6b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;uECC_vli_modInv
+<BR>[Called By]<UL><LI><a href="#[6a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;uECC_verify
+<LI><a href="#[6b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;uECC_vli_modInv
 <LI><a href="#[4c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;double_jacobian_default
-<LI><a href="#[6a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;uECC_verify
 </UL>
 
 <P><STRONG><a name="[70]"></a>uECC_vli_mmod</STRONG> (Thumb, 316 bytes, Stack size 672 bytes, micro_ecc_lib_uECC.c.o(.text.uECC_vli_mmod))
@@ -496,9 +496,9 @@ Global Symbols
 <P><STRONG><a name="[67]"></a>uECC_vli_modAdd</STRONG> (Thumb, 50 bytes, Stack size 64 bytes, micro_ecc_lib_uECC.c.o(.text.uECC_vli_modAdd))
 <BR><BR>[Stack]<UL><LI>Max Depth = 128<LI>Call Chain = uECC_vli_modAdd &rArr; uECC_vli_sub
 </UL>
-<BR>[Calls]<UL><LI><a href="#[65]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;uECC_vli_sub
+<BR>[Calls]<UL><LI><a href="#[64]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;uECC_vli_cmp_unsafe
+<LI><a href="#[65]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;uECC_vli_sub
 <LI><a href="#[68]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;uECC_vli_add
-<LI><a href="#[64]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;uECC_vli_cmp_unsafe
 </UL>
 <BR>[Called By]<UL><LI><a href="#[4c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;double_jacobian_default
 <LI><a href="#[4d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;x_side_default
@@ -507,14 +507,14 @@ Global Symbols
 <P><STRONG><a name="[6b]"></a>uECC_vli_modInv</STRONG> (Thumb, 268 bytes, Stack size 608 bytes, micro_ecc_lib_uECC.c.o(.text.uECC_vli_modInv))
 <BR><BR>[Stack]<UL><LI>Max Depth = 768<LI>Call Chain = uECC_vli_modInv &rArr; vli_modInv_update &rArr; uECC_vli_add
 </UL>
-<BR>[Calls]<UL><LI><a href="#[69]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;uECC_vli_rshift1
+<BR>[Calls]<UL><LI><a href="#[64]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;uECC_vli_cmp_unsafe
+<LI><a href="#[69]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;uECC_vli_rshift1
 <LI><a href="#[5f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;uECC_vli_set
 <LI><a href="#[66]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;uECC_vli_isZero
 <LI><a href="#[63]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;uECC_vli_clear
 <LI><a href="#[65]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;uECC_vli_sub
 <LI><a href="#[68]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;uECC_vli_add
 <LI><a href="#[71]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;vli_modInv_update
-<LI><a href="#[64]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;uECC_vli_cmp_unsafe
 </UL>
 <BR>[Called By]<UL><LI><a href="#[6a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;uECC_verify
 </UL>
@@ -533,11 +533,11 @@ Global Symbols
 </UL>
 <BR>[Calls]<UL><LI><a href="#[72]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;uECC_vli_mult
 </UL>
-<BR>[Called By]<UL><LI><a href="#[60]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;apply_z
+<BR>[Called By]<UL><LI><a href="#[6a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;uECC_verify
+<LI><a href="#[60]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;apply_z
 <LI><a href="#[5b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;XYcZ_add
 <LI><a href="#[4c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;double_jacobian_default
 <LI><a href="#[4d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;x_side_default
-<LI><a href="#[6a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;uECC_verify
 </UL>
 
 <P><STRONG><a name="[5d]"></a>uECC_vli_modSquare_fast</STRONG> (Thumb, 32 bytes, Stack size 320 bytes, micro_ecc_lib_uECC.c.o(.text.uECC_vli_modSquare_fast))
@@ -557,10 +557,10 @@ Global Symbols
 <BR>[Calls]<UL><LI><a href="#[65]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;uECC_vli_sub
 <LI><a href="#[68]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;uECC_vli_add
 </UL>
-<BR>[Called By]<UL><LI><a href="#[5b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;XYcZ_add
+<BR>[Called By]<UL><LI><a href="#[6a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;uECC_verify
+<LI><a href="#[5b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;XYcZ_add
 <LI><a href="#[4c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;double_jacobian_default
 <LI><a href="#[4d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;x_side_default
-<LI><a href="#[6a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;uECC_verify
 </UL>
 
 <P><STRONG><a name="[72]"></a>uECC_vli_mult</STRONG> (Thumb, 786 bytes, Stack size 144 bytes, micro_ecc_lib_uECC.c.o(.text.uECC_vli_mult))
@@ -573,9 +573,9 @@ Global Symbols
 <P><STRONG><a name="[6d]"></a>uECC_vli_numBits</STRONG> (Thumb, 68 bytes, Stack size 0 bytes, micro_ecc_lib_uECC.c.o(.text.uECC_vli_numBits))
 <BR><BR>[Calls]<UL><LI><a href="#[6d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;uECC_vli_numBits
 </UL>
-<BR>[Called By]<UL><LI><a href="#[70]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;uECC_vli_mmod
+<BR>[Called By]<UL><LI><a href="#[6a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;uECC_verify
+<LI><a href="#[70]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;uECC_vli_mmod
 <LI><a href="#[6d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;uECC_vli_numBits
-<LI><a href="#[6a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;uECC_verify
 </UL>
 
 <P><STRONG><a name="[69]"></a>uECC_vli_rshift1</STRONG> (Thumb, 26 bytes, Stack size 0 bytes, micro_ecc_lib_uECC.c.o(.text.uECC_vli_rshift1))
@@ -588,12 +588,12 @@ Global Symbols
 <P><STRONG><a name="[5f]"></a>uECC_vli_set</STRONG> (Thumb, 26 bytes, Stack size 48 bytes, micro_ecc_lib_uECC.c.o(.text.uECC_vli_set))
 <BR><BR>[Stack]<UL><LI>Max Depth = 48<LI>Call Chain = uECC_vli_set
 </UL>
-<BR>[Called By]<UL><LI><a href="#[6b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;uECC_vli_modInv
+<BR>[Called By]<UL><LI><a href="#[6a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;uECC_verify
+<LI><a href="#[6b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;uECC_vli_modInv
 <LI><a href="#[70]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;uECC_vli_mmod
 <LI><a href="#[5b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;XYcZ_add
 <LI><a href="#[4c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;double_jacobian_default
 <LI><a href="#[4e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;vli_mmod_fast_secp256r1
-<LI><a href="#[6a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;uECC_verify
 </UL>
 
 <P><STRONG><a name="[73]"></a>uECC_vli_square</STRONG> (Thumb, 652 bytes, Stack size 144 bytes, micro_ecc_lib_uECC.c.o(.text.uECC_vli_square))
@@ -605,12 +605,12 @@ Global Symbols
 <P><STRONG><a name="[65]"></a>uECC_vli_sub</STRONG> (Thumb, 94 bytes, Stack size 64 bytes, micro_ecc_lib_uECC.c.o(.text.uECC_vli_sub))
 <BR><BR>[Stack]<UL><LI>Max Depth = 64<LI>Call Chain = uECC_vli_sub
 </UL>
-<BR>[Called By]<UL><LI><a href="#[6b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;uECC_vli_modInv
+<BR>[Called By]<UL><LI><a href="#[6a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;uECC_verify
+<LI><a href="#[6b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;uECC_vli_modInv
 <LI><a href="#[5c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;uECC_vli_modSub
 <LI><a href="#[67]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;uECC_vli_modAdd
 <LI><a href="#[4e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;vli_mmod_fast_secp256r1
 <LI><a href="#[62]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;bits2int
-<LI><a href="#[6a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;uECC_verify
 </UL>
 
 <P><STRONG><a name="[6e]"></a>uECC_vli_testBit</STRONG> (Thumb, 18 bytes, Stack size 0 bytes, micro_ecc_lib_uECC.c.o(.text.uECC_vli_testBit))
@@ -727,9 +727,9 @@ Global Symbols
 <P><STRONG><a name="[91]"></a>app_sched_event_put</STRONG> (Thumb, 154 bytes, Stack size 40 bytes, app_scheduler.o(i.app_sched_event_put))
 <BR><BR>[Stack]<UL><LI>Max Depth = 52<LI>Call Chain = app_sched_event_put &rArr; app_util_critical_region_enter
 </UL>
-<BR>[Calls]<UL><LI><a href="#[85]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_memcpy
-<LI><a href="#[79]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;app_util_critical_region_exit
+<BR>[Calls]<UL><LI><a href="#[79]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;app_util_critical_region_exit
 <LI><a href="#[74]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;app_util_critical_region_enter
+<LI><a href="#[85]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_memcpy
 </UL>
 <BR>[Called By]<UL><LI><a href="#[36]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;softdevice_evt_schedule
 <LI><a href="#[7a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;timer_timeouts_check
@@ -854,7 +854,6 @@ Global Symbols
 <BR><BR>[Stack]<UL><LI>Max Depth = 128<LI>Call Chain = ble_dfu_transport_init &rArr; ble_dfu_init &rArr; dfu_pkt_char_add
 </UL>
 <BR>[Calls]<UL><LI><a href="#[9c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;ble_conn_params_init
-<LI><a href="#[ab]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_memclr4
 <LI><a href="#[a9]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;softdevice_ble_evt_handler_set
 <LI><a href="#[a3]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;ble_dfu_init
 <LI><a href="#[8c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;nrf_gpio_pin_set
@@ -862,6 +861,7 @@ Global Symbols
 <LI><a href="#[aa]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;gap_params_init
 <LI><a href="#[a8]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;ble_stack_init
 <LI><a href="#[8a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;advertising_start
+<LI><a href="#[ab]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_memclr4
 </UL>
 <BR>[Address Reference Count : 1]<UL><LI> nrf_ble_dfu.o(dfu_trans)
 </UL>
@@ -1231,9 +1231,9 @@ Global Symbols
 <BR>[Calls]<UL><LI><a href="#[a6]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;nrf_log_frontend_std_0
 <LI><a href="#[cd]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;nrf_dfu_settings_write
 <LI><a href="#[82]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;app_error_handler_bare
+<LI><a href="#[10e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;nrf_dfu_settings_calculate_crc
 <LI><a href="#[ab]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_memclr4
 <LI><a href="#[85]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_memcpy
-<LI><a href="#[10e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;nrf_dfu_settings_calculate_crc
 </UL>
 <BR>[Called By]<UL><LI><a href="#[e0]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;nrf_dfu_init
 </UL>
@@ -1245,10 +1245,10 @@ Global Symbols
 <LI><a href="#[a6]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;nrf_log_frontend_std_0
 <LI><a href="#[ed]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;nrf_dfu_flash_store
 <LI><a href="#[ec]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;nrf_dfu_flash_erase
-<LI><a href="#[9d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_memcpy4
 <LI><a href="#[10e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;nrf_dfu_settings_calculate_crc
 <LI><a href="#[10f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;wait_for_queue
 <LI><a href="#[c2]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;delay_operation
+<LI><a href="#[9d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_memcpy4
 </UL>
 <BR>[Called By]<UL><LI><a href="#[fc]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;nrf_dfu_postvalidate
 <LI><a href="#[fa]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;nrf_dfu_data_req
@@ -1439,12 +1439,12 @@ Global Symbols
 <P><STRONG><a name="[76]"></a>nrf_queue_push</STRONG> (Thumb, 178 bytes, Stack size 32 bytes, nrf_queue.o(i.nrf_queue_push))
 <BR><BR>[Stack]<UL><LI>Max Depth = 44<LI>Call Chain = nrf_queue_push &rArr; app_util_critical_region_enter
 </UL>
-<BR>[Calls]<UL><LI><a href="#[85]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_memcpy
-<LI><a href="#[77]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;nrf_queue_is_full
+<BR>[Calls]<UL><LI><a href="#[77]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;nrf_queue_is_full
 <LI><a href="#[79]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;app_util_critical_region_exit
 <LI><a href="#[74]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;app_util_critical_region_enter
 <LI><a href="#[11d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;queue_utilization_get
 <LI><a href="#[11c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;nrf_queue_next_idx
+<LI><a href="#[85]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_memcpy
 </UL>
 <BR>[Called By]<UL><LI><a href="#[17]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;RNG_IRQHandler
 </UL>
@@ -1509,8 +1509,8 @@ Global Symbols
 <P><STRONG><a name="[12a]"></a>pb_decode_varint</STRONG> (Thumb, 74 bytes, Stack size 32 bytes, pb_decode.o(i.pb_decode_varint))
 <BR><BR>[Stack]<UL><LI>Max Depth = 40<LI>Call Chain = pb_decode_varint &rArr; pb_readbyte
 </UL>
-<BR>[Calls]<UL><LI><a href="#[59]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_llsl
-<LI><a href="#[12e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pb_readbyte
+<BR>[Calls]<UL><LI><a href="#[12e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pb_readbyte
+<LI><a href="#[59]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_llsl
 </UL>
 <BR>[Called By]<UL><LI><a href="#[129]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pb_decode_svarint
 <LI><a href="#[44]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pb_dec_varint
@@ -1587,8 +1587,8 @@ Global Symbols
 <P><STRONG><a name="[e8]"></a>sha256_final</STRONG> (Thumb, 272 bytes, Stack size 16 bytes, sha256.o(i.sha256_final))
 <BR><BR>[Stack]<UL><LI>Max Depth = 340<LI>Call Chain = sha256_final &rArr; sha256_transform
 </UL>
-<BR>[Calls]<UL><LI><a href="#[ab]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_memclr4
-<LI><a href="#[137]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;sha256_transform
+<BR>[Calls]<UL><LI><a href="#[137]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;sha256_transform
+<LI><a href="#[ab]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_memclr4
 </UL>
 <BR>[Called By]<UL><LI><a href="#[e7]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;nrf_crypto_hash_finalize
 </UL>
@@ -2323,23 +2323,23 @@ Local Symbols
 <P><STRONG><a name="[3e]"></a>nrf_log_backend_serial_hexdump_handler</STRONG> (Thumb, 284 bytes, Stack size 296 bytes, nrf_log_backend_serial.o(i.nrf_log_backend_serial_hexdump_handler))
 <BR><BR>[Stack]<UL><LI>Max Depth = 368<LI>Call Chain = nrf_log_backend_serial_hexdump_handler &rArr; serial_tx &rArr; SEGGER_RTT_WriteNoLock &rArr; _WriteBlocking
 </UL>
-<BR>[Calls]<UL><LI><a href="#[113]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;strlen
+<BR>[Calls]<UL><LI><a href="#[112]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;timestamp_process
+<LI><a href="#[115]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;serial_tx
+<LI><a href="#[113]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;strlen
 <LI><a href="#[85]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_memcpy
 <LI><a href="#[114]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__rt_ctype_table
-<LI><a href="#[112]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;timestamp_process
-<LI><a href="#[115]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;serial_tx
 </UL>
 <BR>[Address Reference Count : 1]<UL><LI> nrf_log_backend_serial.o(i.nrf_log_backend_hexdump_handler_get)
 </UL>
 <P><STRONG><a name="[3f]"></a>nrf_log_backend_serial_std_handler</STRONG> (Thumb, 264 bytes, Stack size 304 bytes, nrf_log_backend_serial.o(i.nrf_log_backend_serial_std_handler))
 <BR><BR>[Stack]<UL><LI>Max Depth = 376<LI>Call Chain = nrf_log_backend_serial_std_handler &rArr; serial_tx &rArr; SEGGER_RTT_WriteNoLock &rArr; _WriteBlocking
 </UL>
-<BR>[Calls]<UL><LI><a href="#[116]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__2snprintf
-<LI><a href="#[113]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;strlen
-<LI><a href="#[85]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_memcpy
-<LI><a href="#[112]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;timestamp_process
+<BR>[Calls]<UL><LI><a href="#[112]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;timestamp_process
 <LI><a href="#[115]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;serial_tx
 <LI><a href="#[117]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;buf_len_update
+<LI><a href="#[116]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__2snprintf
+<LI><a href="#[113]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;strlen
+<LI><a href="#[85]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_memcpy
 </UL>
 <BR>[Address Reference Count : 1]<UL><LI> nrf_log_backend_serial.o(i.nrf_log_backend_std_handler_get)
 </UL>
@@ -2355,8 +2355,8 @@ Local Symbols
 <P><STRONG><a name="[112]"></a>timestamp_process</STRONG> (Thumb, 44 bytes, Stack size 8 bytes, nrf_log_backend_serial.o(i.timestamp_process))
 <BR><BR>[Stack]<UL><LI>Max Depth = 40<LI>Call Chain = timestamp_process &rArr; __2snprintf
 </UL>
-<BR>[Calls]<UL><LI><a href="#[116]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__2snprintf
-<LI><a href="#[117]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;buf_len_update
+<BR>[Calls]<UL><LI><a href="#[117]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;buf_len_update
+<LI><a href="#[116]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__2snprintf
 </UL>
 <BR>[Called By]<UL><LI><a href="#[3f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;nrf_log_backend_serial_std_handler
 <LI><a href="#[3e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;nrf_log_backend_serial_hexdump_handler
@@ -2455,9 +2455,9 @@ Local Symbols
 <P><STRONG><a name="[c0]"></a>decode_static_field</STRONG> (Thumb, 220 bytes, Stack size 40 bytes, pb_decode.o(i.decode_static_field))
 <BR><BR>[Stack]<UL><LI>Max Depth = 128<LI>Call Chain = decode_static_field &rArr; pb_message_set_to_defaults &rArr; pb_field_set_to_default &rArr;  pb_message_set_to_defaults (Cycle)
 </UL>
-<BR>[Calls]<UL><LI><a href="#[54]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_memclr
-<LI><a href="#[be]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pb_make_string_substream
+<BR>[Calls]<UL><LI><a href="#[be]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pb_make_string_substream
 <LI><a href="#[c1]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pb_message_set_to_defaults
+<LI><a href="#[54]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_memclr
 </UL>
 <BR>[Called By]<UL><LI><a href="#[bf]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;decode_field
 </UL>
@@ -2547,11 +2547,11 @@ Local Symbols
 <BR><BR>[Stack]<UL><LI>Max Depth = 56 + In Cycle
 <LI>Call Chain = pb_field_set_to_default &rArr;  pb_message_set_to_defaults (Cycle)
 </UL>
-<BR>[Calls]<UL><LI><a href="#[54]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_memclr
-<LI><a href="#[85]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_memcpy
-<LI><a href="#[c1]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pb_message_set_to_defaults
+<BR>[Calls]<UL><LI><a href="#[c1]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pb_message_set_to_defaults
 <LI><a href="#[12f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pb_field_set_to_default
 <LI><a href="#[d7]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;iter_from_extension
+<LI><a href="#[54]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_memclr
+<LI><a href="#[85]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_memcpy
 </UL>
 <BR>[Called By]<UL><LI><a href="#[c1]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pb_message_set_to_defaults
 <LI><a href="#[12f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pb_field_set_to_default
@@ -2587,28 +2587,28 @@ Local Symbols
 <P><STRONG><a name="[61]"></a>bcopy</STRONG> (Thumb, 12 bytes, Stack size 0 bytes, micro_ecc_lib_uECC.c.o(.text.bcopy))
 <BR><BR>[Calls]<UL><LI><a href="#[61]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;bcopy
 </UL>
-<BR>[Called By]<UL><LI><a href="#[62]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;bits2int
-<LI><a href="#[61]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;bcopy
+<BR>[Called By]<UL><LI><a href="#[61]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;bcopy
 <LI><a href="#[6a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;uECC_verify
+<LI><a href="#[62]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;bits2int
 </UL>
 
 <P><STRONG><a name="[64]"></a>uECC_vli_cmp_unsafe</STRONG> (Thumb, 42 bytes, Stack size 32 bytes, micro_ecc_lib_uECC.c.o(.text.uECC_vli_cmp_unsafe))
 <BR><BR>[Stack]<UL><LI>Max Depth = 32<LI>Call Chain = uECC_vli_cmp_unsafe
 </UL>
-<BR>[Called By]<UL><LI><a href="#[6b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;uECC_vli_modInv
+<BR>[Called By]<UL><LI><a href="#[6a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;uECC_verify
+<LI><a href="#[6b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;uECC_vli_modInv
 <LI><a href="#[67]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;uECC_vli_modAdd
 <LI><a href="#[4e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;vli_mmod_fast_secp256r1
 <LI><a href="#[62]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;bits2int
-<LI><a href="#[6a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;uECC_verify
 </UL>
 
 <P><STRONG><a name="[62]"></a>bits2int</STRONG> (Thumb, 136 bytes, Stack size 128 bytes, micro_ecc_lib_uECC.c.o(.text.bits2int))
 <BR><BR>[Stack]<UL><LI>Max Depth = 192<LI>Call Chain = bits2int &rArr; uECC_vli_sub
 </UL>
-<BR>[Calls]<UL><LI><a href="#[63]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;uECC_vli_clear
-<LI><a href="#[65]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;uECC_vli_sub
-<LI><a href="#[64]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;uECC_vli_cmp_unsafe
+<BR>[Calls]<UL><LI><a href="#[64]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;uECC_vli_cmp_unsafe
 <LI><a href="#[61]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;bcopy
+<LI><a href="#[63]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;uECC_vli_clear
+<LI><a href="#[65]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;uECC_vli_sub
 </UL>
 <BR>[Called By]<UL><LI><a href="#[6a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;uECC_verify
 </UL>
@@ -2616,10 +2616,10 @@ Local Symbols
 <P><STRONG><a name="[4e]"></a>vli_mmod_fast_secp256r1</STRONG> (Thumb, 432 bytes, Stack size 224 bytes, micro_ecc_lib_uECC.c.o(.text.vli_mmod_fast_secp256r1))
 <BR><BR>[Stack]<UL><LI>Max Depth = 288<LI>Call Chain = vli_mmod_fast_secp256r1 &rArr; uECC_vli_sub
 </UL>
-<BR>[Calls]<UL><LI><a href="#[5f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;uECC_vli_set
+<BR>[Calls]<UL><LI><a href="#[64]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;uECC_vli_cmp_unsafe
+<LI><a href="#[5f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;uECC_vli_set
 <LI><a href="#[65]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;uECC_vli_sub
 <LI><a href="#[68]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;uECC_vli_add
-<LI><a href="#[64]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;uECC_vli_cmp_unsafe
 </UL>
 <BR>[Address Reference Count : 1]<UL><LI> micro_ecc_lib_uECC.c.o(.rodata.curve_secp256r1)
 </UL>

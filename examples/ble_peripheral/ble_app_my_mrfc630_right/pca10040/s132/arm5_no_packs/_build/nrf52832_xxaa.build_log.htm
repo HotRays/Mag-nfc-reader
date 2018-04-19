@@ -58,15 +58,15 @@ compiling main.c...
                                                 ble_nus_string_send(&m_nus, re, strlen(re));
 ..\..\..\main.c(255): warning:  #167-D: argument of type "uint8_t *" is incompatible with parameter of type "const char *"
                                                 ble_nus_string_send(&m_nus, re, strlen(re));    
-..\..\..\main.c(832): warning:  #167-D: argument of type "uint8_t *" is incompatible with parameter of type "char *restrict"
+..\..\..\main.c(844): warning:  #167-D: argument of type "uint8_t *" is incompatible with parameter of type "char *restrict"
                         strcat(re_str, uid_str_p);
-..\..\..\main.c(832): warning:  #167-D: argument of type "uint8_t *" is incompatible with parameter of type "const char *restrict"
+..\..\..\main.c(844): warning:  #167-D: argument of type "uint8_t *" is incompatible with parameter of type "const char *restrict"
                         strcat(re_str, uid_str_p);
-..\..\..\main.c(878): warning:  #167-D: argument of type "char *" is incompatible with parameter of type "uint8_t *"
+..\..\..\main.c(889): warning:  #167-D: argument of type "char *" is incompatible with parameter of type "uint8_t *"
         ble_nus_string_send(&m_nus, re, strlen(re));
 ..\..\..\main.c: 18 warnings, 0 errors
 linking...
-Program Size: Code=32388 RO-data=1532 RW-data=204 ZI-data=11372  
+Program Size: Code=32464 RO-data=1532 RW-data=204 ZI-data=11372  
 FromELF: creating hex file...
 ".\_build\nrf52832_xxaa.axf" - 0 Error(s), 18 Warning(s).
 
@@ -98,7 +98,7 @@ Package Vendor: NordicSemiconductor
       Source file:   Device\Source\arm\arm_startup_nrf52.s
       Source file:   Device\Source\system_nrf52.c
       Include file:  Device\Include\system_nrf52.h
-Build Time Elapsed:  00:00:03
+Build Time Elapsed:  00:00:04
 </pre>
 </body>
 </html>
