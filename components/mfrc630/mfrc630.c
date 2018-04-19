@@ -3,7 +3,8 @@
 #include "twi_manager.h"
 #include "mfrc630_def.h"
 #include "nrf_delay.h"
-
+#include "nrf_log.h"
+#include "nrf_log_ctrl.h"
 
 #define MPU_TWI_BUFFER_SIZE     	  14 
 
@@ -48,7 +49,7 @@ uint8_t mfrc630_read_reg(uint8_t reg) {
   );
 
   if(err_code != 0)
-     printf("err_code = %d\r\n",err_code) ;
+    NRF_LOG_ERROR("MFRC630: read: %02x error %d\n", reg, err_code);
 
   err_code = nrf_drv_twi_rx(&m_twi, 
                             MFRC630_ADDRESS,
@@ -57,7 +58,7 @@ uint8_t mfrc630_read_reg(uint8_t reg) {
   );
   
   if(err_code != 0)
-     printf("err_code = %d\r\n",err_code) ;
+    NRF_LOG_ERROR("MFRC630: read: %02x error %d\n", reg, err_code);
   nrf_drv_twi_enable(&m_twi);
   return data ; 
 }
@@ -75,7 +76,7 @@ void mfrc630_write_reg(uint8_t reg, uint8_t value) {
 							
   if(err_code != 0)
   {
-    printf("err_code = %d\r\n",err_code);
+    NRF_LOG_ERROR("MFRC630: write: %02x error %d\n", reg, err_code);
   }
     nrf_drv_twi_enable(&m_twi);
 }
@@ -107,8 +108,10 @@ void mfrc630_read_fifo(uint8_t* rx, uint16_t len) {
   );
 
   if(err_code != 0)
-     printf("err_code = %d\r\n",err_code) ;
-
+  {
+    NRF_LOG_ERROR("MFRC630: read: %02x error %d\n", MFRC630_REG_FIFODATA, err_code);
+  }
+	
   err_code = nrf_drv_twi_rx(&m_twi, 
                             MFRC630_ADDRESS,
                             rx, 
@@ -116,7 +119,7 @@ void mfrc630_read_fifo(uint8_t* rx, uint16_t len) {
   );
   
   if(err_code != 0)
-     printf("err_code = %d\r\n",err_code) ;
+    NRF_LOG_ERROR("MFRC630: read: %02x error %d\n", MFRC630_REG_FIFODATA, err_code);
   nrf_drv_twi_enable(&m_twi);	
 }
 	
@@ -266,25 +269,33 @@ uint16_t mfrc630_iso14443a_WUPA_REQA(uint8_t instruction) {
   mfrc630_timer_set_value(timer_for_timeout, 1000);
 // Go into send, then straight after in receive.  
   mfrc630_cmd_transceive(send_req, 1);    //0026 写入fifo
+  NRF_LOG_INFO("Sending REQA\r\n");
+	
   // block until we are done
   uint8_t irq1_value = 0;  
   while (!(irq1_value & (1 << timer_for_timeout))) 
   {
     irq1_value = mfrc630_irq1();
     if (irq1_value & MFRC630_IRQ1_GLOBAL_IRQ) {  // either ERR_IRQ or RX_IRQ
+			NRF_LOG_INFO("either ERR_IRQ or RX_IRQ\r\n");		
       break;  // stop polling irq1 and quit the timeout loop.
     }
   }
+  NRF_LOG_INFO("After waiting for answer\r\n");
   mfrc630_cmd_idle();
   
 // if no Rx IRQ, or if there's an error somehow, return 0  
   uint8_t irq0 = mfrc630_irq0();
   if ((!(irq0 & MFRC630_IRQ0_RX_IRQ)) || (irq0 & MFRC630_IRQ0_ERR_IRQ)) {
+		NRF_LOG_INFO("No RX, irq1: %hhx irq0: %hhx\r\n", irq1_value, irq0);
     return 0;
   }
   
   uint16_t res;  
   mfrc630_read_fifo((uint8_t*) &res, 2);   // ATQA should answer with 2 bytes.
+	NRF_LOG_INFO("ATQA answer: ");
+	mfrc630_print_block((uint8_t*) &res, 2);
+	printf("\r\n");
   return res;  
 }
 
@@ -292,6 +303,7 @@ uint8_t mfrc630_iso14443a_select( uint8_t* uid, uint8_t* sak){
   mfrc630_cmd_idle();
   mfrc630_flush_fifo(); //清空 FIFOdata	
 // enable the global IRQ for Rx done and Errors.	
+	NRF_LOG_INFO("Starting select\r\n");
   mfrc630_write_reg(MFRC630_REG_IRQ0EN, MFRC630_IRQ0EN_RX_IRQEN | MFRC630_IRQ0EN_ERR_IRQEN);
   mfrc630_write_reg(MFRC630_REG_IRQ1EN, MFRC630_IRQ1EN_TIMER0_IRQEN);  // only trigger on timer for irq1
 // configure a timeout timer, use timer 0.	
@@ -304,7 +316,7 @@ uint8_t mfrc630_iso14443a_select( uint8_t* uid, uint8_t* sak){
   mfrc630_timer_set_value(timer_for_timeout, 1000);
   uint8_t cascade_level = 1;
 	
-  for (cascade_level=1; cascade_level <= 3; cascade_level++) { //防碰撞的过程分成三个级别
+  for (cascade_level=1; cascade_level <= 3; cascade_level++) { //防碰撞的过程分成三个级别		
 		uint8_t cmd = 0;
 		uint8_t known_bits = 0;       // known bits of the UID at this level so far.
 		uint8_t send_req[7] = {0};    // used as Tx buffer.
@@ -333,12 +345,15 @@ uint8_t mfrc630_iso14443a_select( uint8_t* uid, uint8_t* sak){
 		uint8_t collision_n;
 		uint8_t buf[5];  
 		for (collision_n=0; collision_n < 32; collision_n++) {
+			NRF_LOG_INFO("CL: %hhd, coll loop: %hhd, kb %hhd long: \r\n", cascade_level, collision_n, known_bits);
 			mfrc630_clear_irq0();
 			mfrc630_clear_irq1();
 			send_req[0] = cmd;
 			send_req[1] = 0x20 + known_bits;
 			mfrc630_write_reg(MFRC630_REG_TXDATANUM, (known_bits % 8) | MFRC630_TXDATANUM_DATAEN);
 			uint8_t rxalign = known_bits % 8;
+			NRF_LOG_INFO("Setting rx align to: %hhd\r\n", rxalign);
+
 			mfrc630_write_reg(MFRC630_REG_RXBITCTRL, (0<<7) | (rxalign<<4));
 
 			if ((known_bits % 8) == 0) {
@@ -346,7 +361,7 @@ uint8_t mfrc630_iso14443a_select( uint8_t* uid, uint8_t* sak){
 			} else {
 				message_length = ((known_bits / 8) + 1) + 2;
 			}
- 
+      NRF_LOG_INFO("Send:%hhd long: \r\n", message_length);
 			mfrc630_cmd_transceive(send_req, message_length);	  
 	// block until we are done	  
 			uint8_t irq1_value = 0;
@@ -362,7 +377,8 @@ uint8_t mfrc630_iso14443a_select( uint8_t* uid, uint8_t* sak){
 			uint8_t irq0 = mfrc630_irq0();
 			uint8_t error = mfrc630_read_reg(MFRC630_REG_ERROR);
 			uint8_t coll = mfrc630_read_reg(MFRC630_REG_RXCOLL);
-
+      NRF_LOG_INFO("irq0: %hhX\r\n", irq0);
+      NRF_LOG_INFO("error: %hhX\r\n", error);
 			uint8_t collision_pos = 0;
 			if (irq0 & MFRC630_IRQ0_ERR_IRQ) {  // some error occured.
 	// Check what kind of error.
@@ -370,35 +386,48 @@ uint8_t mfrc630_iso14443a_select( uint8_t* uid, uint8_t* sak){
 				if (error & MFRC630_ERROR_COLLDET) {
 					if (coll & (1<<7)) {
 						collision_pos = coll & (~(1<<7));
-
+            NRF_LOG_INFO("Collision at %hhX\r\n", collision_pos);
 						uint8_t choice_pos = known_bits + collision_pos;
 						uint8_t selection = (uid[((choice_pos + (cascade_level-1)*3)/8)] >> ((choice_pos) % 8))&1;
 
 						uid_this_level[((choice_pos)/8)] |= selection << ((choice_pos) % 8);
 						known_bits++;  
-
+            NRF_LOG_INFO("uid_this_level now kb %hhd long: ", known_bits);
+            mfrc630_print_block(uid_this_level, 10);
+						printf("\r\n");
 					} else {
+						NRF_LOG_INFO("Collision but no valid collpos.\r\n");
 						collision_pos = 0x20 - known_bits;
 					}
 				} else {
+					NRF_LOG_INFO("No collision, error was: %hhx, setting collision_pos to: %hhx\r\n", error, collision_pos);
 					collision_pos = 0x20 - known_bits;
 				}
 			} else if (irq0 & MFRC630_IRQ0_RX_IRQ) {
 				collision_pos = 0x20 - known_bits;
+        NRF_LOG_INFO("Got data, no collision, setting to: %hhx\r\n", collision_pos);				
 			} else {
 				return 0;
 			}
+      NRF_LOG_INFO("collision_pos: %hhX\r\n", collision_pos);
 
-		mfrc630_read_fifo(buf,5);
+			mfrc630_read_fifo(buf,5);
 
 			uint8_t rbx;
-
+      NRF_LOG_INFO("uid_this_level kb %hhd long: ", known_bits);
+      mfrc630_print_block(uid_this_level, (known_bits + 8 - 1) / 8);
+			printf("\r\n");
 			for (rbx = 0; (rbx < 5); rbx++) {
 				uid_this_level[(known_bits / 8) + rbx] |= buf[rbx];
 			}
 			known_bits += collision_pos;
+      NRF_LOG_INFO("known_bits: %hhX\r\n", known_bits);
 		
 			if ((known_bits >= 32)) {
+        NRF_LOG_INFO("exit collision loop\r\n");
+        NRF_LOG_INFO("uid_this_level kb %hhd long: ", known_bits);				
+        mfrc630_print_block(uid_this_level, 10);		
+				printf("\r\n");				
 				break; 
 			}
 		}  
@@ -407,7 +436,8 @@ uint8_t mfrc630_iso14443a_select( uint8_t* uid, uint8_t* sak){
 		uint8_t bcc_calc = uid_this_level[0]^uid_this_level[1]^uid_this_level[2]^uid_this_level[3];
 
 		if (bcc_val != bcc_calc) {
-		memcpy(uid, buf, sizeof(buf));
+			memcpy(uid, buf, sizeof(buf));
+			NRF_LOG_INFO("Something went wrong, BCC does not match[%02x:%02x].\r\n", bcc_val, bcc_calc);
 			return 0;
 		}
 
@@ -424,7 +454,10 @@ uint8_t mfrc630_iso14443a_select( uint8_t* uid, uint8_t* sak){
 		uint8_t rxalign = 0;
 		mfrc630_write_reg(MFRC630_REG_RXBITCTRL, (0 << 7) | (rxalign << 4));
 		mfrc630_cmd_transceive(send_req, message_length);
-
+    NRF_LOG_INFO("send_req %hhd long: ", message_length);
+    mfrc630_print_block(send_req, message_length);
+		printf("\r\n");				
+		
 		uint8_t irq1_value = 0;
 		while (!(irq1_value & (1 << timer_for_timeout))) {
 			irq1_value = mfrc630_irq1();
@@ -443,6 +476,9 @@ uint8_t mfrc630_iso14443a_select( uint8_t* uid, uint8_t* sak){
 
 		uint8_t sak_len = 1;
 		mfrc630_read_fifo(sak, sak_len);	
+		NRF_LOG_INFO("SAK answer: ");
+    mfrc630_print_block(sak, 1);
+		printf("\r\n");				
 
 		if (*sak & (1 << 2)) {
 			uint8_t UIDn;
@@ -456,6 +492,9 @@ uint8_t mfrc630_iso14443a_select( uint8_t* uid, uint8_t* sak){
 			}
 			return cascade_level*3 + 1;
 		}
+    NRF_LOG_INFO("Exit cascade %hhd long: \r\n", cascade_level);
+    mfrc630_print_block(uid, 10);		
+		printf("\r\n");
 	}  
   return 0; 
 }

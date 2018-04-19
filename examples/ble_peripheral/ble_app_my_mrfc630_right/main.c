@@ -846,12 +846,12 @@ uint8_t mfrc630_MF_example_dump(void)
 			ble_nus_string_send(&m_nus, re_str, 20); 
 			return 1;
 		} else {
-			printf("Could not determine UID, perhaps some cards don't play");
-			printf(" well with the other cards? Or too many collisions?\r\n");
+			NRF_LOG_INFO("Could not determine UID, perhaps some cards don't play");
+			NRF_LOG_INFO(" well with the other cards? Or too many collisions?\r\n");
 			return 0;
 		}
 	}else {
-		printf("No answer to REQA, no cards?\r\n");
+		NRF_LOG_INFO("No answer to REQA, no cards?\r\n");
 		return 0;
 	}
 }
@@ -890,13 +890,13 @@ int main(void)
 
 	for (;;)
 	{   
-		if (NRF_LOG_PROCESS() == false)
-		{
-				power_manage();
-		}		
-//		mfrc630_MF_example_dump();
-//		nrf_delay_ms(500);
-//		printf("count = %d\r\n\r", ii++);			
+//		if (NRF_LOG_PROCESS() == false)
+//		{
+//				power_manage();
+//		}		
+		mfrc630_MF_example_dump();
+		nrf_delay_ms(500);
+		printf("\r\n\r\n");			
 	}
 }
 

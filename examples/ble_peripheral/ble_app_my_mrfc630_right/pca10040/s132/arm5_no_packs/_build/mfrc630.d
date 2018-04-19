@@ -62,3 +62,5 @@
 .\_build\mfrc630.o: ..\..\..\..\..\..\components\ble\common\ble_srv_common.h
 .\_build\mfrc630.o: ..\..\..\..\..\..\components\twi_manager\twi_manager.h
 .\_build\mfrc630.o: ..\..\..\..\..\..\components\drivers_nrf\delay\nrf_delay.h
+.\_build\mfrc630.o: ..\..\..\..\..\..\components\libraries\log\nrf_log_ctrl.h
+.\_build\mfrc630.o: ..\..\..\..\..\..\components\libraries\log\src\nrf_log_ctrl_internal.h

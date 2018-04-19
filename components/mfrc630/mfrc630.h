@@ -96,8 +96,6 @@ uint8_t mfrc630_MF_read_block(uint8_t block_address, uint8_t* dest);
 
 uint8_t mfrc630_MF_write_block(uint8_t block_address, const uint8_t* source);
 
-//uint8_t * mfrc630_MF_example_dump(void);
-
 #ifdef __cplusplus
 }
 #endif
