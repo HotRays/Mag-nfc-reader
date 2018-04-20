@@ -195,6 +195,29 @@
       allows configuration of the timer source, start and stop criteria.
       @{
 */
+////! If set, the timer stops after receiving the first 4 bits. If cleared, the timer is not stopped automatically.
+//#define MFRC630_TCONTROL_STOPRX           (1<<7)
+////! Do not start automatically.
+//#define MFRC630_TCONTROL_START_NOT        (0b00<<4)
+////! Start automatically at the end of transmission.
+//#define MFRC630_TCONTROL_START_TX_END     (0b01<<4)
+
+////! Timer is used for LFO trimming without underflow.
+//#define MFRC630_TCONTROL_START_LFO_WO     (0b10<<4)
+////! Timer is used for LFO trimming with underflow.
+//#define MFRC630_TCONTROL_START_LFO_WITH   (0b11<<4)
+////! Automatically restart from the reload value when an underflow is reached.
+//#define MFRC630_TCONTROL_AUTO_RESTART     (0b1<<3)
+////! results in 7.69e-08 ~ 76 nSec ticks.
+//#define MFRC630_TCONTROL_CLK_13MHZ        (0b00)
+////! results in 4.52e-06 ~ 5 uSec ticks.
+//#define MFRC630_TCONTROL_CLK_211KHZ       (0b01)
+////! The timer ticks based on alternate source 1, check datasheet.
+//#define MFRC630_TCONTROL_CLK_UF_TA1       (0b10)
+////! The timer ticks based on alternate source 2, check datasheet.
+//#define MFRC630_TCONTROL_CLK_UF_TA2       (0b11)
+
+
 
 #define MFRC630_TCONTROL_STOPRX           (1<<7)
 //! Do not start automatically.
@@ -216,6 +239,13 @@
 #define MFRC630_TCONTROL_CLK_UF_TA1       (2)
 //! The timer ticks based on alternate source 2, check datasheet.
 #define MFRC630_TCONTROL_CLK_UF_TA2       (3)
+
+
+
+
+  //! @}
+//! @}
+
 
 /*! \addtogroup register
     

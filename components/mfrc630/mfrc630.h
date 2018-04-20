@@ -12,10 +12,6 @@
 #include <string.h>
 #include "ble_nus.h"
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 #define MFRC630_ADDRESS 0x29	
 
 uint32_t mfrc630_twi_init(void);
@@ -70,13 +66,7 @@ void mfrc630_timer_set_value(uint8_t timer, uint16_t value);
 
 uint16_t mfrc630_timer_get_value(uint8_t timer);
 
-void mfrc630_AN11145_start_IQ_measurement(void);
-
-void mfrc630_AN11145_stop_IQ_measurement(void);
-
 void mfrc630_AN1102_recommended_registers(uint8_t protocol);
-
-void mfrc630_AN1102_recommended_registers_no_transmitter(uint8_t protocol);
 
 void mfrc630_AN1102_recommended_registers_skip(uint8_t protocol, uint8_t skip);
 
@@ -88,16 +78,18 @@ uint16_t mfrc630_iso14443a_WUPA_REQA(uint8_t instruction);
 
 uint8_t mfrc630_iso14443a_select( uint8_t* uid, uint8_t* sak);
 
-uint8_t mfrc630_MF_auth(const uint8_t* uid, uint8_t key_type, uint8_t block);
+//uint8_t mfrc630_MF_auth(const uint8_t* uid, uint8_t key_type, uint8_t block);
 
-void mfrc630_MF_deauth(void);
+//void mfrc630_MF_deauth(void);
 
-uint8_t mfrc630_MF_read_block(uint8_t block_address, uint8_t* dest);
+//uint8_t mfrc630_MF_read_block(uint8_t block_address, uint8_t* dest);
 
-uint8_t mfrc630_MF_write_block(uint8_t block_address, const uint8_t* source);
+//uint8_t mfrc630_MF_write_block(uint8_t block_address, const uint8_t* source);
 
-#ifdef __cplusplus
-}
-#endif
+//void mfrc630_AN11145_start_IQ_measurement(void);
+
+//void mfrc630_AN11145_stop_IQ_measurement(void);
+
+//void mfrc630_AN1102_recommended_registers_no_transmitter(uint8_t protocol);
 
 #endif 

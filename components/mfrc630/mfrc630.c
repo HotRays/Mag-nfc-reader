@@ -6,12 +6,9 @@
 #include "nrf_log.h"
 #include "nrf_log_ctrl.h"
 
-#define MPU_TWI_BUFFER_SIZE     	  14 
-
 static const nrf_drv_twi_t m_twi = NRF_DRV_TWI_INSTANCE(0);   
 volatile static bool twi_tx_done = false;
 volatile static bool twi_rx_done = false;
-uint8_t twi_tx_buffer[MPU_TWI_BUFFER_SIZE];
 
 uint32_t mfrc630_twi_init(void){	
   ret_code_t err_code;
@@ -233,8 +230,6 @@ void mfrc630_AN1102_recommended_registers(uint8_t protocol) {
 uint16_t mfrc630_iso14443a_REQA(void) {
   return mfrc630_iso14443a_WUPA_REQA(MFRC630_ISO14443_CMD_REQA);
 }
-
-
 
 uint16_t mfrc630_iso14443a_WUPA_REQA(uint8_t instruction) {
   mfrc630_cmd_idle();

@@ -25,7 +25,6 @@
 #include "nrf_log_ctrl.h"
 #include "hextochar.h"
 
-
 #define CONN_CFG_TAG                    1                                           /**< A tag that refers to the BLE stack configuration we set with @ref sd_ble_cfg_set. Default tag is @ref BLE_CONN_CFG_TAG_DEFAULT. */
 
 #define APP_FEATURE_NOT_SUPPORTED       BLE_GATT_STATUS_ATTERR_APP_BEGIN + 2        /**< Reply when unsupported features are requested. */
@@ -49,23 +48,25 @@
 #define UART_TX_BUF_SIZE                256                                         /**< UART TX buffer size. */
 #define UART_RX_BUF_SIZE                256                                         /**< UART RX buffer size. */
 
-/**@brief Thingy FW version.
-* 0xFF indicates a custom build from source. 
-Version numbers are changed for releases. */
-#define THINGY_FW_VERSION_MAJOR     (0xFF)
-#define THINGY_FW_VERSION_MINOR     (0xFF)
-#define THINGY_FW_VERSION_PATCH     (0xFF)
+/*
+ *@brief Thingy FW version.
+ * 0xFF indicates a custom build from source. 
+ *Version numbers are changed for releases. 
+ */
+#define THINGY_FW_VERSION_MAJOR     		(0xFF)
+#define THINGY_FW_VERSION_MINOR     		(0xFF)
+#define THINGY_FW_VERSION_PATCH     		(0xFF)
 
 static ble_nus_t                        m_nus;                                      /**< Structure to identify the Nordic UART Service. */
 static uint16_t                         m_conn_handle = BLE_CONN_HANDLE_INVALID;    /**< Handle of the current connection. */
-static ble_dfu_t      m_dfus;                                                       /**< Structure used to identify the DFU service. */
+static ble_dfu_t      									m_dfus;                                     /**< Structure used to identify the DFU service. */
 
 static nrf_ble_gatt_t                   m_gatt;                                     /**< GATT module instance. */
 static ble_uuid_t                       m_adv_uuids[] = {{BLE_UUID_NUS_SERVICE, NUS_SERVICE_UUID_TYPE}};  /**< Universally unique service identifier. */
 static uint16_t                         m_ble_nus_max_data_len = BLE_GATT_ATT_MTU_DEFAULT - 3;  /**< Maximum length of data (in bytes) that can be transmitted to the peer by the Nordic UART service module. */
+
 static void (*reset_this_CPU)(void) = 0x0000; //复位重新开始的地址
 uint8_t mfrc630_MF_example_dump(void); 
-
 
 /**@brief Function for assert macro callback.
  *
@@ -728,7 +729,6 @@ void uart_event_handle(app_uart_evt_t * p_event)
 }
 /**@snippet [Handling the data received over UART] */
 
-
 /**@brief  Function for initializing the UART module.
  */
 /**@snippet [UART Initialization] */
@@ -755,7 +755,6 @@ static void uart_init(void)
 	APP_ERROR_CHECK(err_code);
 }
 /**@snippet [UART Initialization] */
-
 
 /**@brief Function for initializing the Advertising functionality.
  */
@@ -866,7 +865,6 @@ int main(void)
 	uint32_t err_code;
 	bool     erase_bonds;
 
-	// Initialize.
 	err_code = app_timer_init();
 	APP_ERROR_CHECK(err_code);
 
