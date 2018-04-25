@@ -157,6 +157,9 @@ static void nus_data_handler(ble_nus_t * p_nus, uint8_t * p_data, uint16_t lengt
 
 }
 
+
+uint8_t stat = 0;//判断认证状态
+
 static void receive_data_from_android(ble_nus_t * p_nus, uint8_t * p_data, uint16_t length)
 {
 //uart 有接收时，到此处
@@ -180,7 +183,7 @@ static void receive_data_from_android(ble_nus_t * p_nus, uint8_t * p_data, uint1
 	}
 	
 //判断status，进入对应的操作
-	uint8_t status;
+	uint8_t status;//判读AT指令是否正确
 	status = strcmp(at_data[0], "AT");
 	if(status == 0)
 	{
@@ -194,11 +197,13 @@ static void receive_data_from_android(ble_nus_t * p_nus, uint8_t * p_data, uint1
 
 			if(auth_status == 0)
 			{
+				stat = 1;
 				uint8_t *re = "RE+auth+success";
 				ble_nus_string_send(&m_nus, re, strlen(re));				
 			}
 			if(auth_status != 0)
 			{
+				stat = 0;
 				uint8_t *re = "RE+auth+fail";
 				ble_nus_string_send(&m_nus, re, strlen(re));						
 				err_code = sd_ble_gap_disconnect(m_conn_handle, BLE_HCI_CONN_INTERVAL_UNACCEPTABLE);
@@ -207,60 +212,73 @@ static void receive_data_from_android(ble_nus_t * p_nus, uint8_t * p_data, uint1
 		}
 		else
 		{
-			status = strcmp(at_data[1], "version");
-			if(status == 0) //版本
+			printf("stat = %d", stat);
+			if(stat == 1)	
 			{
-				uint8_t version[5]; 
-				uint8_t *version_p;
-				version_p = version;
-				uint8_t test[1] = {THINGY_FW_VERSION_MAJOR};
-				version_p = hex_to_char_version(test, 1);
-				printf("version_p = %s",version_p);
-				uint8_t re_str[20] = "RE+version+";
-				strcat(re_str, version_p);
-				printf("uid_str_p = %s\r\n", re_str);
-				ble_nus_string_send(&m_nus, re_str, strlen(re_str)); 			
-				
-			}	
-			else
-			{
-				status = strcmp(at_data[1], "uid");
-				printf("uid status = %d\r\n", status);
-				printf("the uid data is %s\r\n", at_data[1]);
-				if(status == 0) //获取UID
+				status = strcmp(at_data[1], "version");
+				if(status == 0) //版本
 				{
-					uint8_t i;
-					uint8_t stat;
-					for(i = 0; i < 20; i++)
-					{
-						stat = mfrc630_MF_example_dump();
-						if(stat == 1)
-							break;
-						nrf_delay_ms(50);
-					}						
-				}
+					uint8_t version[5]; 
+					uint8_t *version_p;
+					version_p = version;
+					uint8_t test[1] = {THINGY_FW_VERSION_MAJOR};
+					version_p = hex_to_char_version(test, 1);
+					printf("version_p = %s",version_p);
+					uint8_t re_str[20] = "RE+version+";
+					strcat(re_str, version_p);
+					printf("uid_str_p = %s\r\n", re_str);
+					ble_nus_string_send(&m_nus, re_str, strlen(re_str)); 			
+					
+				}	
 				else
 				{
-					status = strcmp(at_data[1], "reset");
-					if(status == 0) //复位
+					status = strcmp(at_data[1], "uid");
+					printf("uid status = %d\r\n", status);
+					printf("the uid data is %s\r\n", at_data[1]);
+					if(status == 0) //获取UID
 					{
-						uint8_t *re = "RE+reset+now start reset,please connect again";
-						ble_nus_string_send(&m_nus, re, strlen(re));						
-						reset_this_CPU(); //***跳到0x0000地址指针，也就是复位
-						re = "RE+reset+fail";
-						ble_nus_string_send(&m_nus, re, strlen(re));
-					}	
+						uint8_t i;
+						uint8_t stat;
+						for(i = 0; i < 20; i++)
+						{
+							stat = mfrc630_MF_example_dump();
+							if(stat == 1)
+								break;
+							nrf_delay_ms(50);
+						}						
+					}
 					else
 					{
-						uint8_t *re = "RE+reset+the data form app error";
-						ble_nus_string_send(&m_nus, re, strlen(re));	
+						status = strcmp(at_data[1], "reset");
+						if(status == 0) //复位
+						{
+							uint8_t *re = "RE+reset+now start reset,please connect again";
+							ble_nus_string_send(&m_nus, re, strlen(re));						
+							reset_this_CPU(); //***跳到0x0000地址指针，也就是复位
+							re = "RE+reset+fail";
+							ble_nus_string_send(&m_nus, re, strlen(re));
+						}	
+						else
+						{
+							uint8_t *re = "RE+the data form app error";
+							ble_nus_string_send(&m_nus, re, strlen(re));	
+						}
 					}
 				}
 			}
-		}
+			else
+			{
+				uint8_t *re = "RE+please auth";
+				ble_nus_string_send(&m_nus, re, strlen(re));	
+			}	
+		}			
 	}
+	else
+	{
+		uint8_t *re = "RE+the data form app error";
+		ble_nus_string_send(&m_nus, re, strlen(re));	
+	}	
 }
-
 
 /**@snippet [Handling the data received over BLE] */
 
@@ -873,7 +891,7 @@ int main(void)
 	buttons_leds_init(&erase_bonds);
 	ble_stack_init();
 	gap_params_init();
-	gatt_init();
+	//gatt_init();
 	services_init();
 	advertising_init();
 	conn_params_init();
@@ -888,13 +906,13 @@ int main(void)
 
 	for (;;)
 	{   
-//		if (NRF_LOG_PROCESS() == false)
-//		{
-//				power_manage();
-//		}		
-		mfrc630_MF_example_dump();
-		nrf_delay_ms(500);
-		printf("\r\n\r\n");			
+		if (NRF_LOG_PROCESS() == false)
+		{
+				power_manage();
+		}		
+//		mfrc630_MF_example_dump();
+//		nrf_delay_ms(500);
+//		printf("\r\n\r\n");			
 	}
 }
 
