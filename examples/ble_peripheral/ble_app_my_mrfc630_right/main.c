@@ -159,7 +159,6 @@ static void nus_data_handler(ble_nus_t * p_nus, uint8_t * p_data, uint16_t lengt
 
 
 uint8_t stat = 0;//判断认证状态
-
 static void receive_data_from_android(ble_nus_t * p_nus, uint8_t * p_data, uint16_t length)
 {
 //uart 有接收时，到此处
