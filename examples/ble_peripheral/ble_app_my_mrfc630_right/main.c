@@ -451,6 +451,8 @@ static void on_ble_evt(ble_evt_t * p_ble_evt)
 			APP_ERROR_CHECK(err_code);
 			m_conn_handle = BLE_CONN_HANDLE_INVALID;
 			NRF_LOG_INFO("Disconnected\r\n");
+			err_code = sd_ble_gap_disconnect(m_conn_handle, BLE_HCI_CONN_INTERVAL_UNACCEPTABLE);
+			APP_ERROR_CHECK(err_code);	
 			break; // BLE_GAP_EVT_DISCONNECTED
 
 		case BLE_GAP_EVT_SEC_PARAMS_REQUEST:
@@ -671,7 +673,6 @@ void bsp_event_handler(bsp_event_t event)
 					break;
 				nrf_delay_ms(50);
 			}
-			if(BSP_EVENT_KEY_0 == 1)
 			break;
 		case BSP_EVENT_KEY_1:
 			for(i = 0; i < 20; i++)
@@ -681,9 +682,7 @@ void bsp_event_handler(bsp_event_t event)
 					break;
 				nrf_delay_ms(50);
 			}
-			if((BSP_EVENT_KEY_1 & 0x01) == 1)   
-//			if(((BSP_EVENT_KEY_1 << 1) & 1)  == 1)   ??按键的值是怎么存储在bsp_event_t中的
-				break;				
+			break;				
 
 		default:
 			break;
@@ -836,6 +835,9 @@ static void power_manage(void)
 }
 
 
+
+//uint8_t read_uid[10] = {0};
+//uint8_t card_number = 0;
 // ---------------------------------------------------------------------------
 // example
 // ---------------------------------------------------------------------------
@@ -849,7 +851,8 @@ uint8_t mfrc630_MF_example_dump(void)
 		// Select the card and discover its uid.	
 		uint8_t uid_len = mfrc630_iso14443a_select(uid, &sak);
 
-		if (uid_len != 0) { // did we get an UID? 		
+		if (uid_len != 0) { // did we get an UID? 	
+			
 			uint8_t uid_str[9];
 			uint8_t *uid_str_p;
 			uid_str_p = uid_str;
@@ -895,9 +898,9 @@ int main(void)
 
 	err_code = ble_advertising_start(BLE_ADV_MODE_FAST);
 	APP_ERROR_CHECK(err_code);
-	
-	char re[20] = "RE+start success";
-	ble_nus_string_send(&m_nus, re, strlen(re));
+
+	NRF_LOG_INFO("start\r\n");
+
 
 	for (;;)
 	{   
@@ -913,10 +916,7 @@ int main(void)
 
 
 //连上一段时间内收不到认证消息，断开连接
-//手机端断开连接时，重启
 //电平触发读卡
 //记录卡状态   上面有几个卡
-//结构体?
-//按键数据时怎么存储的，零一？
 
 
