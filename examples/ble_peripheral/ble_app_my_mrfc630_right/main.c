@@ -29,7 +29,7 @@
 
 #define APP_FEATURE_NOT_SUPPORTED       BLE_GATT_STATUS_ATTERR_APP_BEGIN + 2        /**< Reply when unsupported features are requested. */
 
-#define DEVICE_NAME                     "12345"                               /**< Name of device. Will be included in the advertising data. */
+#define DEVICE_NAME                     "MFRC630"                               /**< Name of device. Will be included in the advertising data. */
 #define NUS_SERVICE_UUID_TYPE           BLE_UUID_TYPE_VENDOR_BEGIN                  /**< UUID type for the Nordic UART Service (vendor specific). */
 
 #define APP_ADV_INTERVAL                64                                          /**< The advertising interval (in units of 0.625 ms. This value corresponds to 40 ms). */
@@ -67,6 +67,7 @@ static uint16_t                         m_ble_nus_max_data_len = BLE_GATT_ATT_MT
 
 static void (*reset_this_CPU)(void) = 0x0000; //复位重新开始的地址
 uint8_t mfrc630_MF_example_dump(void); 
+
 
 /**@brief Function for assert macro callback.
  *
@@ -112,7 +113,10 @@ static void gap_params_init(void)
 
 	err_code = sd_ble_gap_ppcp_set(&gap_conn_params);
 	APP_ERROR_CHECK(err_code);
+																				
+                                         																				
 }
+
 
 
 /**@brief Function for handling the data from the Nordic UART Service.
@@ -167,7 +171,7 @@ static void receive_data_from_android(ble_nus_t * p_nus, uint8_t * p_data, uint1
 	uint32_t err_code;
 	uint8_t i = 0, j = 0, num = 0;
 	uint8_t at_data[5][10] = {0};
-  for(num = 0; num < length; num++)
+	for(num = 0; num < length; num++)
 	{
 		if(p_data[num] == '+')
 		{
@@ -176,7 +180,7 @@ static void receive_data_from_android(ble_nus_t * p_nus, uint8_t * p_data, uint1
 		}
 		else
 		{
-		  at_data[i][j] = p_data[num];
+			at_data[i][j] = p_data[num];
 			j++;
 		}
 	}
@@ -209,74 +213,63 @@ static void receive_data_from_android(ble_nus_t * p_nus, uint8_t * p_data, uint1
 				APP_ERROR_CHECK(err_code);	
 			}
 		}
-		else
+		if(stat == 1)	
 		{
-			printf("stat = %d", stat);
-			if(stat == 1)	
+			status = strcmp(at_data[1], "version");
+			if(status == 0) //版本
 			{
-				status = strcmp(at_data[1], "version");
-				if(status == 0) //版本
-				{
-					uint8_t version[5]; 
-					uint8_t *version_p;
-					version_p = version;
-					uint8_t test[1] = {THINGY_FW_VERSION_MAJOR};
-					version_p = hex_to_char_version(test, 1);
-					printf("version_p = %s",version_p);
-					uint8_t re_str[20] = "RE+version+";
-					strcat(re_str, version_p);
-					printf("uid_str_p = %s\r\n", re_str);
-					ble_nus_string_send(&m_nus, re_str, strlen(re_str)); 			
-					
-				}	
-				else
-				{
-					status = strcmp(at_data[1], "uid");
-					printf("uid status = %d\r\n", status);
-					printf("the uid data is %s\r\n", at_data[1]);
-					if(status == 0) //获取UID
-					{
-						uint8_t i;
-						uint8_t stat;
-						for(i = 0; i < 20; i++)
-						{
-							stat = mfrc630_MF_example_dump();
-							if(stat == 1)
-								break;
-							nrf_delay_ms(50);
-						}						
-					}
-					else
-					{
-						status = strcmp(at_data[1], "reset");
-						if(status == 0) //复位
-						{
-							uint8_t *re = "RE+reset+now start reset,please connect again";
-							ble_nus_string_send(&m_nus, re, strlen(re));						
-							reset_this_CPU(); //***跳到0x0000地址指针，也就是复位
-							re = "RE+reset+fail";
-							ble_nus_string_send(&m_nus, re, strlen(re));
-						}	
-						else
-						{
-							uint8_t *re = "RE+the data form app error";
-							ble_nus_string_send(&m_nus, re, strlen(re));	
-						}
-					}
-				}
-			}
+				uint8_t version[5]; 
+				uint8_t *version_p;
+				version_p = version;
+				uint8_t test[1] = {THINGY_FW_VERSION_MAJOR};
+				version_p = hex_to_char_version(test, 1);
+				printf("version_p = %s",version_p);
+				uint8_t re_str[20] = "RE+version+";
+				strcat(re_str, version_p);
+				printf("uid_str_p = %s\r\n", re_str);
+				ble_nus_string_send(&m_nus, re_str, strlen(re_str)); 			
+				
+			}	
 			else
 			{
-				uint8_t *re = "RE+please auth";
-				ble_nus_string_send(&m_nus, re, strlen(re));	
-			}	
-		}			
+				status = strcmp(at_data[1], "uid");
+				printf("uid status = %d\r\n", status);
+				printf("the uid data is %s\r\n", at_data[1]);
+				if(status == 0) //获取UID
+				{
+					uint8_t i;
+					uint8_t stat;
+					for(i = 0; i < 20; i++)
+					{
+						stat = mfrc630_MF_example_dump();
+						if(stat == 1)
+							break;
+						nrf_delay_ms(50);
+					}						
+				}
+				else
+				{
+					status = strcmp(at_data[1], "reset");
+					if(status == 0) //复位
+					{
+						uint8_t *re = "RE+reset+now start reset,please connect again";
+						ble_nus_string_send(&m_nus, re, strlen(re));						
+						reset_this_CPU(); //***跳到0x0000地址指针，也就是复位
+						re = "RE+reset+fail";
+						ble_nus_string_send(&m_nus, re, strlen(re));
+					}	
+
+				}
+			}
+		}
+		else
+		{
+			uint8_t *re = "RE+please auth";
+			ble_nus_string_send(&m_nus, re, strlen(re));
+			err_code = sd_ble_gap_disconnect(m_conn_handle, BLE_HCI_CONN_INTERVAL_UNACCEPTABLE);
+			APP_ERROR_CHECK(err_code);				
+		}
 	}
-	else
-	{
-		uint8_t *re = "RE+the data form app error";
-		ble_nus_string_send(&m_nus, re, strlen(re));	
-	}	
 }
 
 /**@snippet [Handling the data received over BLE] */
@@ -389,6 +382,7 @@ static void conn_params_init(void)
 }
 
 
+
 /**@brief Function for putting the chip into sleep mode.
  *
  * @note This function will not return.
@@ -452,6 +446,7 @@ static void on_ble_evt(ble_evt_t * p_ble_evt)
 			break; // BLE_GAP_EVT_CONNECTED
 
 		case BLE_GAP_EVT_DISCONNECTED:
+			stat = 0;
 			err_code = bsp_indication_set(BSP_INDICATE_IDLE);
 			APP_ERROR_CHECK(err_code);
 			m_conn_handle = BLE_CONN_HANDLE_INVALID;
@@ -461,6 +456,7 @@ static void on_ble_evt(ble_evt_t * p_ble_evt)
 		case BLE_GAP_EVT_SEC_PARAMS_REQUEST:
 			// Pairing not supported
 			err_code = sd_ble_gap_sec_params_reply(m_conn_handle, BLE_GAP_SEC_STATUS_PAIRING_NOT_SUPP, NULL, NULL);
+//			err_code=sd_ble_gap_sec_params_reply(m_conn_handle, BLE_GAP_SEC_STATUS_SUCCESS,&m_sec_params,NULL);
 			APP_ERROR_CHECK(err_code);
 			break; // BLE_GAP_EVT_SEC_PARAMS_REQUEST
 
@@ -785,7 +781,7 @@ static void advertising_init(void)
 	// Build advertising data struct to pass into @ref ble_advertising_init.
 	memset(&advdata, 0, sizeof(advdata));
 	advdata.name_type          = BLE_ADVDATA_FULL_NAME;
-	advdata.include_appearance = false;
+	advdata.include_appearance = false;       //、、
 	advdata.flags              = BLE_GAP_ADV_FLAGS_LE_ONLY_LIMITED_DISC_MODE;
 
 	memset(&scanrsp, 0, sizeof(scanrsp));
@@ -797,7 +793,7 @@ static void advertising_init(void)
 	options.ble_adv_fast_interval = APP_ADV_INTERVAL;
 	options.ble_adv_fast_timeout  = APP_ADV_TIMEOUT_IN_SECONDS;
 
-	err_code = ble_advertising_init(&advdata, &scanrsp, &options, on_adv_evt, NULL);
+	err_code = ble_advertising_init(&advdata, &scanrsp, &options, on_adv_evt, NULL);//、、
 	APP_ERROR_CHECK(err_code);
 
 	ble_advertising_conn_cfg_tag_set(CONN_CFG_TAG);
@@ -914,5 +910,13 @@ int main(void)
 //		printf("\r\n\r\n");			
 	}
 }
+
+
+//连上一段时间内收不到认证消息，断开连接
+//手机端断开连接时，重启
+//电平触发读卡
+//记录卡状态   上面有几个卡
+//结构体?
+//按键数据时怎么存储的，零一？
 
 

@@ -3,9 +3,9 @@
 <title>Static Call Graph - [.\_build\nrf52832_xxaa.axf]</title></head>
 <body><HR>
 <H1>Static Call Graph for image .\_build\nrf52832_xxaa.axf</H1><HR>
-<BR><P>#&#060CALLGRAPH&#062# ARM Linker, 5060020: Last Updated: Wed Apr 25 10:08:58 2018
+<BR><P>#&#060CALLGRAPH&#062# ARM Linker, 5060020: Last Updated: Thu Apr 26 19:03:03 2018
 <BR><P>
-<H3>Maximum Stack Usage =        576 bytes + Unknown(Cycles, Untraceable Function Pointers)</H3><H3>
+<H3>Maximum Stack Usage =        584 bytes + Unknown(Cycles, Untraceable Function Pointers)</H3><H3>
 Call chain for Maximum Stack Depth:</H3>
 receive_data_from_android &rArr; mfrc630_MF_example_dump &rArr; mfrc630_iso14443a_select &rArr; mfrc630_cmd_transceive &rArr; mfrc630_write_fifo &rArr; mfrc630_write_reg &rArr; nrf_drv_twi_tx &rArr; nrf_drv_twi_xfer &rArr; twi_xfer &rArr; twi_tx_start_transfer &rArr; twi_transfer &rArr; twi_send_byte
 <P>
@@ -1233,7 +1233,7 @@ Global Symbols
 <BR>[Called By]<UL><LI><a href="#[137]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;mfrc630_iso14443a_REQA
 </UL>
 
-<P><STRONG><a name="[138]"></a>mfrc630_iso14443a_select</STRONG> (Thumb, 1920 bytes, Stack size 120 bytes, mfrc630.o(i.mfrc630_iso14443a_select))
+<P><STRONG><a name="[138]"></a>mfrc630_iso14443a_select</STRONG> (Thumb, 1800 bytes, Stack size 120 bytes, mfrc630.o(i.mfrc630_iso14443a_select))
 <BR><BR>[Stack]<UL><LI>Max Depth = 384<LI>Call Chain = mfrc630_iso14443a_select &rArr; mfrc630_cmd_transceive &rArr; mfrc630_write_fifo &rArr; mfrc630_write_reg &rArr; nrf_drv_twi_tx &rArr; nrf_drv_twi_xfer &rArr; twi_xfer &rArr; twi_tx_start_transfer &rArr; twi_transfer &rArr; twi_send_byte
 </UL>
 <BR>[Calls]<UL><LI><a href="#[14b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;nrf_log_frontend_std_3
@@ -1731,7 +1731,7 @@ Local Symbols
 <BR>[Called By]<UL><LI><a href="#[2f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;main
 </UL>
 
-<P><STRONG><a name="[45]"></a>ble_dfu_evt_handler</STRONG> (Thumb, 64 bytes, Stack size 16 bytes, main.o(i.ble_dfu_evt_handler))
+<P><STRONG><a name="[45]"></a>ble_dfu_evt_handler</STRONG> (Thumb, 62 bytes, Stack size 16 bytes, main.o(i.ble_dfu_evt_handler))
 <BR><BR>[Stack]<UL><LI>Max Depth = 64<LI>Call Chain = ble_dfu_evt_handler &rArr; nrf_log_frontend_std_0 &rArr; nrf_log_direct_feed
 </UL>
 <BR>[Calls]<UL><LI><a href="#[97]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;nrf_log_frontend_std_0
@@ -1839,7 +1839,7 @@ Local Symbols
 </UL>
 <BR>[Address Reference Count : 1]<UL><LI> main.o(i.advertising_init)
 </UL>
-<P><STRONG><a name="[dd]"></a>on_ble_evt</STRONG> (Thumb, 434 bytes, Stack size 48 bytes, main.o(i.on_ble_evt))
+<P><STRONG><a name="[dd]"></a>on_ble_evt</STRONG> (Thumb, 440 bytes, Stack size 48 bytes, main.o(i.on_ble_evt))
 <BR><BR>[Stack]<UL><LI>Max Depth = 184<LI>Call Chain = on_ble_evt &rArr; bsp_indication_set &rArr; bsp_led_indication &rArr; app_timer_start &rArr; timer_start_op_schedule &rArr; app_util_critical_region_enter &rArr; sd_nvic_critical_region_enter
 </UL>
 <BR>[Calls]<UL><LI><a href="#[97]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;nrf_log_frontend_std_0
@@ -1865,8 +1865,8 @@ Local Symbols
 <BR>[Called By]<UL><LI><a href="#[2f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;main
 </UL>
 
-<P><STRONG><a name="[44]"></a>receive_data_from_android</STRONG> (Thumb, 604 bytes, Stack size 128 bytes, main.o(i.receive_data_from_android))
-<BR><BR>[Stack]<UL><LI>Max Depth = 576<LI>Call Chain = receive_data_from_android &rArr; mfrc630_MF_example_dump &rArr; mfrc630_iso14443a_select &rArr; mfrc630_cmd_transceive &rArr; mfrc630_write_fifo &rArr; mfrc630_write_reg &rArr; nrf_drv_twi_tx &rArr; nrf_drv_twi_xfer &rArr; twi_xfer &rArr; twi_tx_start_transfer &rArr; twi_transfer &rArr; twi_send_byte
+<P><STRONG><a name="[44]"></a>receive_data_from_android</STRONG> (Thumb, 572 bytes, Stack size 136 bytes, main.o(i.receive_data_from_android))
+<BR><BR>[Stack]<UL><LI>Max Depth = 584<LI>Call Chain = receive_data_from_android &rArr; mfrc630_MF_example_dump &rArr; mfrc630_iso14443a_select &rArr; mfrc630_cmd_transceive &rArr; mfrc630_write_fifo &rArr; mfrc630_write_reg &rArr; nrf_drv_twi_tx &rArr; nrf_drv_twi_xfer &rArr; twi_xfer &rArr; twi_tx_start_transfer &rArr; twi_transfer &rArr; twi_send_byte
 </UL>
 <BR>[Calls]<UL><LI><a href="#[11c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;hex_to_char_version
 <LI><a href="#[133]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;ble_nus_string_send
