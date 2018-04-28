@@ -28,43 +28,69 @@ Project File Date:  04/25/2018
 *** Using Compiler 'V5.06 (build 20)', folder: 'C:\Keil_v5\ARM\ARMCC\Bin'
 Build target 'nrf52832_xxaa'
 compiling main.c...
-..\..\..\main.c(190): warning:  #167-D: argument of type "uint8_t *" is incompatible with parameter of type "const char *"
-        status = strcmp(at_data[0], "AT");
-..\..\..\main.c(193): warning:  #167-D: argument of type "uint8_t *" is incompatible with parameter of type "const char *"
-                status = strcmp(at_data[1], "auth");
-..\..\..\main.c(197): warning:  #167-D: argument of type "uint8_t *" is incompatible with parameter of type "const char *"
-                        auth_status = strcmp(at_data[2],"auth");
-..\..\..\main.c(205): warning:  #167-D: argument of type "uint8_t *" is incompatible with parameter of type "const char *"
-                                ble_nus_string_send(&m_nus, re, strlen(re));                            
-..\..\..\main.c(211): warning:  #167-D: argument of type "uint8_t *" is incompatible with parameter of type "const char *"
-                                ble_nus_string_send(&m_nus, re, strlen(re));                                            
-..\..\..\main.c(218): warning:  #167-D: argument of type "uint8_t *" is incompatible with parameter of type "const char *"
-                        status = strcmp(at_data[1], "version");
-..\..\..\main.c(228): warning:  #167-D: argument of type "uint8_t *" is incompatible with parameter of type "char *restrict"
-                                strcat(re_str, version_p);
-..\..\..\main.c(228): warning:  #167-D: argument of type "uint8_t *" is incompatible with parameter of type "const char *restrict"
-                                strcat(re_str, version_p);
+..\..\..\main.c(94): warning:  #167-D: argument of type "void (*)()" is incompatible with parameter of type "app_timer_timeout_handler_t"
+                                  close_connect);
 ..\..\..\main.c(230): warning:  #167-D: argument of type "uint8_t *" is incompatible with parameter of type "const char *"
-                                ble_nus_string_send(&m_nus, re_str, strlen(re_str));                    
-..\..\..\main.c(235): warning:  #167-D: argument of type "uint8_t *" is incompatible with parameter of type "const char *"
-                                status = strcmp(at_data[1], "uid");
+        status = strcmp(at_data[0], "AT");
+..\..\..\main.c(234): warning:  #167-D: argument of type "uint8_t *" is incompatible with parameter of type "const char *"
+                status = strcmp(at_data[1], "auth");
+..\..\..\main.c(238): warning:  #167-D: argument of type "uint8_t *" is incompatible with parameter of type "const char *"
+                        auth_status = strcmp(at_data[2],"auth");
+..\..\..\main.c(244): warning:  #167-D: argument of type "uint8_t *" is incompatible with parameter of type "const char *"
+                                ble_nus_string_send(&m_nus, re, strlen(re));
 ..\..\..\main.c(252): warning:  #167-D: argument of type "uint8_t *" is incompatible with parameter of type "const char *"
-                                        status = strcmp(at_data[1], "reset");
-..\..\..\main.c(256): warning:  #167-D: argument of type "uint8_t *" is incompatible with parameter of type "const char *"
-                                                ble_nus_string_send(&m_nus, re, strlen(re));                                            
+                                ble_nus_string_send(&m_nus, re, strlen(re));                                            
 ..\..\..\main.c(259): warning:  #167-D: argument of type "uint8_t *" is incompatible with parameter of type "const char *"
+                        status = strcmp(at_data[1], "version");
+..\..\..\main.c(269): warning:  #167-D: argument of type "uint8_t *" is incompatible with parameter of type "char *restrict"
+                                strcat(re_str, version_p);
+..\..\..\main.c(269): warning:  #167-D: argument of type "uint8_t *" is incompatible with parameter of type "const char *restrict"
+                                strcat(re_str, version_p);
+..\..\..\main.c(271): warning:  #167-D: argument of type "uint8_t *" is incompatible with parameter of type "const char *"
+                                ble_nus_string_send(&m_nus, re_str, strlen(re_str));                    
+..\..\..\main.c(276): warning:  #167-D: argument of type "uint8_t *" is incompatible with parameter of type "const char *"
+                                status = strcmp(at_data[1], "uid");
+..\..\..\main.c(288): warning:  #167-D: argument of type "uint8_t *" is incompatible with parameter of type "const char *"
+                                        status = strcmp(at_data[1], "reset");
+..\..\..\main.c(292): warning:  #167-D: argument of type "uint8_t *" is incompatible with parameter of type "const char *"
+                                                ble_nus_string_send(&m_nus, re, strlen(re));                                            
+..\..\..\main.c(295): warning:  #167-D: argument of type "uint8_t *" is incompatible with parameter of type "const char *"
                                                 ble_nus_string_send(&m_nus, re, strlen(re));
-..\..\..\main.c(268): warning:  #167-D: argument of type "uint8_t *" is incompatible with parameter of type "const char *"
+..\..\..\main.c(304): warning:  #167-D: argument of type "uint8_t *" is incompatible with parameter of type "const char *"
                         ble_nus_string_send(&m_nus, re, strlen(re));
-..\..\..\main.c(857): warning:  #167-D: argument of type "uint8_t *" is incompatible with parameter of type "char *restrict"
+..\..\..\main.c(679): warning:  #177-D: variable "stat" was declared but never referenced
+        uint8_t stat;
+..\..\..\main.c(894): warning:  #167-D: argument of type "uint8_t *" is incompatible with parameter of type "char *restrict"
                         strcat(re_str, uid_str_p);
-..\..\..\main.c(857): warning:  #167-D: argument of type "uint8_t *" is incompatible with parameter of type "const char *restrict"
+..\..\..\main.c(894): warning:  #167-D: argument of type "uint8_t *" is incompatible with parameter of type "const char *restrict"
                         strcat(re_str, uid_str_p);
-..\..\..\main.c: 16 warnings, 0 errors
+..\..\..\main.c(907): warning:  #940-D: missing return statement at end of non-void function "mfrc630_MF_example_dump"
+  }
+..\..\..\main.c(879): warning:  #177-D: variable "i" was declared but never referenced
+        uint8_t i;
+..\..\..\main.c(980): warning:  #940-D: missing return statement at end of non-void function "mfrc630_MF_dump"
+  }
+..\..\..\main.c(1016): warning:  #187-D: use of "=" where "==" may have been intended
+                                        if(j = 3)
+..\..\..\main.c(1031): warning:  #167-D: argument of type "uint8_t *" is incompatible with parameter of type "char *restrict"
+                        strcat(re_str, uid_str_p);
+..\..\..\main.c(1031): warning:  #167-D: argument of type "uint8_t *" is incompatible with parameter of type "const char *restrict"
+                        strcat(re_str, uid_str_p);
+..\..\..\main.c(1047): warning:  #187-D: use of "=" where "==" may have been intended
+                                        if(j = 3)
+..\..\..\main.c(1062): warning:  #167-D: argument of type "uint8_t *" is incompatible with parameter of type "char *restrict"
+                        strcat(re_str, uid_str_p);
+..\..\..\main.c(1062): warning:  #167-D: argument of type "uint8_t *" is incompatible with parameter of type "const char *restrict"
+                        strcat(re_str, uid_str_p);
+..\..\..\main.c(1071): warning:  #940-D: missing return statement at end of non-void function "read_rifd"
+  }
+..\..\..\main.c(863): warning:  #177-D: function "power_manage" was declared but never referenced
+  static void power_manage(void)
+..\..\..\main.c: 29 warnings, 0 errors
 linking...
-Program Size: Code=34088 RO-data=1624 RW-data=212 ZI-data=11116  
+Program Size: Code=35356 RO-data=1668 RW-data=212 ZI-data=11700  
 FromELF: creating hex file...
-".\_build\nrf52832_xxaa.axf" - 0 Error(s), 16 Warning(s).
+".\_build\nrf52832_xxaa.axf" - 0 Error(s), 29 Warning(s).
 
 <h2>Software Packages used:</h2>
 
@@ -94,7 +120,7 @@ Package Vendor: NordicSemiconductor
       Source file:   Device\Source\arm\arm_startup_nrf52.s
       Source file:   Device\Source\system_nrf52.c
       Include file:  Device\Include\system_nrf52.h
-Build Time Elapsed:  00:00:03
+Build Time Elapsed:  00:00:04
 </pre>
 </body>
 </html>

@@ -45,8 +45,8 @@
 
 #define DEAD_BEEF                       0xDEADBEEF                                  /**< Value used as error code on stack dump, can be used to identify stack location on stack unwind. */
 
-#define UART_TX_BUF_SIZE                256                                         /**< UART TX buffer size. */
-#define UART_RX_BUF_SIZE                256                                         /**< UART RX buffer size. */
+#define UART_TX_BUF_SIZE                512                                         /**< UART TX buffer size. */
+#define UART_RX_BUF_SIZE                512                                         /**< UART RX buffer size. */
 
 /*
  *@brief Thingy FW version.
@@ -67,6 +67,46 @@ static uint16_t                         m_ble_nus_max_data_len = BLE_GATT_ATT_MT
 
 static void (*reset_this_CPU)(void) = 0x0000; //复位重新开始的地址
 uint8_t mfrc630_MF_example_dump(void); 
+APP_TIMER_DEF(timer_id);                              /**< Battery timer. */
+
+/**@brief Function for the Timer initialization.
+ *
+ * @details Initializes the timer module.
+ */
+
+void close_connect()
+{
+    ret_code_t err_code;	
+	NRF_LOG_INFO("timer is done\r\n");
+	err_code = sd_ble_gap_disconnect(m_conn_handle, BLE_HCI_CONN_INTERVAL_UNACCEPTABLE);
+	APP_ERROR_CHECK(err_code);		
+}
+static void timers_init(void)
+{
+    ret_code_t err_code;
+
+    err_code = app_timer_init();
+    APP_ERROR_CHECK(err_code);
+
+    // Create battery timer.
+    err_code = app_timer_create(&timer_id,
+                                APP_TIMER_MODE_SINGLE_SHOT,
+                                close_connect);
+    APP_ERROR_CHECK(err_code);
+}
+#define MY_TIMER            APP_TIMER_TICKS(10000)  
+
+/**@brief Function for starting timers.
+ */
+static void timers_start(void)
+{
+    ret_code_t err_code;
+
+    err_code = app_timer_start(timer_id, MY_TIMER, NULL);
+    APP_ERROR_CHECK(err_code);
+	NRF_LOG_INFO("timer start\r\n");
+
+}
 
 
 /**@brief Function for assert macro callback.
@@ -184,25 +224,26 @@ static void receive_data_from_android(ble_nus_t * p_nus, uint8_t * p_data, uint1
 			j++;
 		}
 	}
-	
+	p_data = 0;
 //判断status，进入对应的操作
 	uint8_t status;//判读AT指令是否正确
 	status = strcmp(at_data[0], "AT");
 	if(status == 0)
 	{
+	
 		status = strcmp(at_data[1], "auth");
 		if(status == 0)  //认证  
 		{
 			uint8_t auth_status;
 			auth_status = strcmp(at_data[2],"auth");
-			printf("auth check in = %s\r\n", at_data[2]);
-			printf("auth status = %d\r\n", status);
 
 			if(auth_status == 0)
 			{
 				stat = 1;
 				uint8_t *re = "RE+auth+success";
-				ble_nus_string_send(&m_nus, re, strlen(re));				
+				ble_nus_string_send(&m_nus, re, strlen(re));
+     		    err_code = app_timer_stop(timer_id);
+				APP_ERROR_CHECK(err_code);				
 			}
 			if(auth_status != 0)
 			{
@@ -233,17 +274,12 @@ static void receive_data_from_android(ble_nus_t * p_nus, uint8_t * p_data, uint1
 			else
 			{
 				status = strcmp(at_data[1], "uid");
-				printf("uid status = %d\r\n", status);
-				printf("the uid data is %s\r\n", at_data[1]);
 				if(status == 0) //获取UID
 				{
 					uint8_t i;
-					uint8_t stat;
-					for(i = 0; i < 20; i++)
+					for(i = 0; i < 100; i++)
 					{
-						stat = mfrc630_MF_example_dump();
-						if(stat == 1)
-							break;
+						mfrc630_MF_example_dump();
 						nrf_delay_ms(50);
 					}						
 				}
@@ -266,9 +302,9 @@ static void receive_data_from_android(ble_nus_t * p_nus, uint8_t * p_data, uint1
 		{
 			uint8_t *re = "RE+please auth";
 			ble_nus_string_send(&m_nus, re, strlen(re));
-			err_code = sd_ble_gap_disconnect(m_conn_handle, BLE_HCI_CONN_INTERVAL_UNACCEPTABLE);
-			APP_ERROR_CHECK(err_code);				
-		}
+//			err_code = sd_ble_gap_disconnect(m_conn_handle, BLE_HCI_CONN_INTERVAL_UNACCEPTABLE);
+//			APP_ERROR_CHECK(err_code);				
+		}	
 	}
 }
 
@@ -441,8 +477,8 @@ static void on_ble_evt(ble_evt_t * p_ble_evt)
 			err_code = bsp_indication_set(BSP_INDICATE_CONNECTED);
 			APP_ERROR_CHECK(err_code);
 			m_conn_handle = p_ble_evt->evt.gap_evt.conn_handle;
-
 			NRF_LOG_INFO("Connected\r\n");
+			timers_start();
 			break; // BLE_GAP_EVT_CONNECTED
 
 		case BLE_GAP_EVT_DISCONNECTED:
@@ -668,18 +704,14 @@ void bsp_event_handler(bsp_event_t event)
 		case BSP_EVENT_KEY_0:
 			for(i = 0; i < 20; i++)
 			{
-				stat = mfrc630_MF_example_dump();
-				if(stat == 1)
-					break;
+				mfrc630_MF_example_dump();
 				nrf_delay_ms(50);
 			}
 			break;
 		case BSP_EVENT_KEY_1:
 			for(i = 0; i < 20; i++)
 			{
-				stat = mfrc630_MF_example_dump();
-				if(stat == 1)
-					break;
+				mfrc630_MF_example_dump();
 				nrf_delay_ms(50);
 			}
 			break;				
@@ -836,13 +868,15 @@ static void power_manage(void)
 
 
 
-//uint8_t read_uid[10] = {0};
-//uint8_t card_number = 0;
+
+
+
 // ---------------------------------------------------------------------------
 // example
 // ---------------------------------------------------------------------------
 uint8_t mfrc630_MF_example_dump(void) 
-{	
+{				
+	uint8_t i;
 	uint16_t atqa = mfrc630_iso14443a_REQA();
 	if (atqa != 0) {  // Are there any cards that answered?
 		uint8_t sak;
@@ -851,8 +885,7 @@ uint8_t mfrc630_MF_example_dump(void)
 		// Select the card and discover its uid.	
 		uint8_t uid_len = mfrc630_iso14443a_select(uid, &sak);
 
-		if (uid_len != 0) { // did we get an UID? 	
-			
+		if (uid_len != 0) { // did we get an UID?
 			uint8_t uid_str[9];
 			uint8_t *uid_str_p;
 			uid_str_p = uid_str;
@@ -861,8 +894,8 @@ uint8_t mfrc630_MF_example_dump(void)
 			strcat(re_str, uid_str_p);
 			printf("uid_str_p = %s\r\n", re_str);
 			ble_nus_string_send(&m_nus, re_str, 20); 
-			return 1;
-		} else {
+		} 
+		else {
 			NRF_LOG_INFO("Could not determine UID, perhaps some cards don't play\r\n");
 			NRF_LOG_INFO(" well with the other cards? Or too many collisions?\r\n");
 			return 0;
@@ -874,6 +907,182 @@ uint8_t mfrc630_MF_example_dump(void)
 }
 
 
+
+
+#define CardNumber 5
+uint8_t read_uid_old[CardNumber][4] = {0};
+uint8_t read_uid[CardNumber][4] = {0};//记录本次读到的卡,假设做多五张卡
+uint8_t card_number = 0;
+
+uint8_t mfrc630_MF_dump(void) 
+{	
+	uint8_t status = 1;//记录当前读到卡的状态，以前读到过为0，没有读到过为1 
+	uint8_t i, j;
+	uint16_t atqa = mfrc630_iso14443a_REQA();
+	if (atqa != 0) {  // Are there any cards that answered?
+		uint8_t sak;
+		uint8_t uid[10] = {0};  // uids are maximum of 10 bytes long.
+
+		// Select the card and discover its uid.	
+		uint8_t uid_len = mfrc630_iso14443a_select(uid, &sak);
+
+		if (uid_len != 0) { // did we get an UID?
+			NRF_LOG_INFO("uid_len = %d\r\n", uid_len);
+			if(card_number != 0)//原来有卡
+			{	
+				NRF_LOG_INFO("1\r\n");
+
+				for(i = 0; i < card_number; i++)//判断此次读到的数据是不是上次读到的
+				{
+					NRF_LOG_INFO("i = %d\r\n",i);
+					NRF_LOG_INFO("2\r\n");
+						
+					for(j = 0; j < 4;j++)
+					{
+						NRF_LOG_INFO("3\r\n");
+						
+						if(read_uid[i][j] == uid[j])
+						{
+							if(j == 3 )
+							{
+								NRF_LOG_INFO("this a old card\r\n");
+								status  = 0;
+							}
+						}
+					}//如果没有退出，说明此数据是以前记录的
+				}
+			}
+//			if(card_number == 0)//原来没有卡，读到的一定是新卡
+//			{
+//				status = 1;
+//			}			
+			if(status == 1)//读到新卡
+			{
+				card_number += 1;		
+				NRF_LOG_INFO("card_number = %d\r\n", card_number);								
+				for(j = 0; j < 4;j++)
+				{
+					NRF_LOG_INFO("write uid\r\n", card_number);								
+					read_uid[card_number - 1][j] = uid[j];
+				}
+				NRF_LOG_INFO("read a new card\r\n");				
+			}
+		} 
+		else {
+			NRF_LOG_INFO("Could not determine UID, perhaps some cards don't play\r\n");
+			NRF_LOG_INFO(" well with the other cards? Or too many collisions?\r\n");
+			return 0;
+		}
+	}else {
+		NRF_LOG_INFO("No answer to REQA, no cards?\r\n");
+		return 0;
+	}
+}
+
+uint8_t read_rifd()
+{
+	uint8_t last_time_num = card_number;
+	memset(read_uid_old,0,sizeof(read_uid_old));
+	uint8_t i, j, k;
+	uint8_t stat;	//记录这张卡在上次是不是被读到过，  上次有为0， 没有为1
+	for(i = 0; i < CardNumber; i++)//记录上一次的读卡数据
+	{
+		for(j = 0; j < 4; j++)
+		{
+			read_uid_old[i][j] = read_uid[i][j];
+		}
+	}
+	NRF_LOG_INFO("read card start\r\n");
+	card_number = 0;
+	memset(read_uid,0,sizeof(read_uid));
+
+	for(i = 0; i < 10; i++)
+	{
+		mfrc630_MF_dump(); //读卡,储存卡的值到read_uid
+		nrf_delay_ms(100);
+	}
+		
+		
+	printf("card_number = %d\r\n", card_number);
+	for(k = 0; k < card_number; k++)//上线   有没有多卡
+	{
+		stat = 1;
+		for(i = 0; i < CardNumber; i++)//和每一个上次读到的数据做对比
+		{
+			for(j = 0; j < 4; j++)
+			{
+				if(read_uid_old[i][j] == read_uid[k][j])//如果在上次记录的数据中也有此卡，不做处理			
+				{	
+					if(j = 3)
+					{
+						NRF_LOG_INFO("the card is same of last time\r\n");
+						stat = 0;
+					}
+				}
+			}
+		}
+		if(stat == 1)
+		{
+			uint8_t uid_str[9];
+			uint8_t *uid_str_p;
+			uid_str_p = uid_str;
+			uid_str_p = hex_to_char_uid(read_uid[k], 4);			
+			uint8_t re_str[20] = "RE+online+";
+			strcat(re_str, uid_str_p);
+			printf("uid_str_p = %s\r\n", re_str);
+			ble_nus_string_send(&m_nus, re_str, 20); 
+		}			
+	}	
+	
+	
+	for(k = 0; k < last_time_num; k++)//下线，有没有少卡
+	{
+		stat = 1;
+		for(i = 0; i < card_number; i++)//和每一个上次读到的数据做对比
+		{
+			for(j = 0; j < 4; j++)
+			{
+				if(read_uid_old[k][j] == read_uid[i][j])//如果在上次记录的数据中也有此卡，不做处理			
+				{	
+					if(j = 3)
+					{
+						NRF_LOG_INFO("the card is same of last time\r\n");
+						stat = 0;
+					}
+				}
+			}
+		}
+		if(stat == 1)
+		{
+			uint8_t uid_str[9];
+			uint8_t *uid_str_p;
+			uid_str_p = uid_str;
+			uid_str_p = hex_to_char_uid(read_uid_old[k], 4);			
+			uint8_t re_str[20] = "RE+offline+";
+			strcat(re_str, uid_str_p);
+			printf("uid_str_p = %s\r\n", re_str);
+			ble_nus_string_send(&m_nus, re_str, 20); 
+		}			
+	}	
+	
+	printf("\r\n\r\n\r\n\r\n");
+	nrf_delay_ms(1000);
+
+}
+
+
+//	if(j == 3)//读到的卡为上次没有的卡
+//	{
+//		uint8_t uid_str[9];
+//		uint8_t *uid_str_p;
+//		uid_str_p = uid_str;
+//		uid_str_p = hex_to_char_uid(read_uid[i], 4);			
+//		uint8_t re_str[20] = "RE+online+";
+//		strcat(re_str, uid_str_p);
+//		printf("uid_str_p = %s\r\n", re_str);
+//		ble_nus_string_send(&m_nus, re_str, 20); 
+//	}
+
 /**@brief Application main function.
  */
 int main(void)
@@ -881,8 +1090,9 @@ int main(void)
 	uint32_t err_code;
 	bool     erase_bonds;
 
-	err_code = app_timer_init();
-	APP_ERROR_CHECK(err_code);
+//	err_code = app_timer_init();
+//	APP_ERROR_CHECK(err_code);
+    timers_init();
 
 	uart_init();
 	log_init();  //sdk_config.h 3727
@@ -904,19 +1114,17 @@ int main(void)
 
 	for (;;)
 	{   
-		if (NRF_LOG_PROCESS() == false)
-		{
-				power_manage();
-		}		
+//		if (NRF_LOG_PROCESS() == false)
+//		{
+//				power_manage();
+//		}	
+		read_rifd();		
 //		mfrc630_MF_example_dump();
-//		nrf_delay_ms(500);
-//		printf("\r\n\r\n");			
+		nrf_delay_ms(500);
+		printf("\r\n\r\n");			
 	}
 }
 
 
-//连上一段时间内收不到认证消息，断开连接
-//电平触发读卡
-//记录卡状态   上面有几个卡
 
 
