@@ -20,7 +20,11 @@ uint32_t mfrc630_twi_init(void){
 	 .clear_bus_init     = false
   };
 
-  err_code = nrf_drv_twi_init(&m_twi, &twi_mfrc630_config, NULL, NULL);  
+  err_code = nrf_drv_twi_init(&m_twi, 
+							  &twi_mfrc630_config,
+							  NULL, 
+							  NULL
+  );  
   if(err_code != NRF_SUCCESS)
 		return err_code;
 
@@ -71,7 +75,7 @@ void mfrc630_write_reg(uint8_t reg, uint8_t value) {
 							
   if(err_code != 0)
     NRF_LOG_ERROR("MFRC630: write: %02x error %d\n", reg, err_code);
-  nrf_drv_twi_enable(&m_twi);
+    nrf_drv_twi_enable(&m_twi);
 }
 
 void mfrc630_write_regs(uint8_t reg, const uint8_t* values, uint8_t len) {
@@ -285,7 +289,8 @@ uint16_t mfrc630_iso14443a_WUPA_REQA(uint8_t instruction) {
   mfrc630_read_fifo((uint8_t*) &res, 2);   // ATQA should answer with 2 bytes.
 	NRF_LOG_INFO("ATQA answer: ");
 	mfrc630_print_block((uint8_t*) &res, 2);
-	printf("\r\n");
+	NRF_LOG_INFO("\r\n");
+	NRF_LOG_INFO("res = %d\r\n", res);  
   return res;  
 }
 
@@ -351,7 +356,10 @@ uint8_t mfrc630_iso14443a_select( uint8_t* uid, uint8_t* sak){
 			} else {
 				message_length = ((known_bits / 8) + 1) + 2;
 			}
-      NRF_LOG_INFO("Send:%hhd long: \r\n", message_length);
+			
+		  NRF_LOG_INFO("Send:%hhd long: ", message_length);
+		  mfrc630_print_block(send_req, message_length);
+		  NRF_LOG_INFO("\r\n");
 			mfrc630_cmd_transceive(send_req, message_length);	  
 	// block until we are done	  
 			uint8_t irq1_value = 0;
@@ -367,8 +375,10 @@ uint8_t mfrc630_iso14443a_select( uint8_t* uid, uint8_t* sak){
 			uint8_t irq0 = mfrc630_irq0();
 			uint8_t error = mfrc630_read_reg(MFRC630_REG_ERROR);
 			uint8_t coll = mfrc630_read_reg(MFRC630_REG_RXCOLL);
-      NRF_LOG_INFO("irq0: %hhX\r\n", irq0);
-      NRF_LOG_INFO("error: %hhX\r\n", error);
+			NRF_LOG_INFO("irq0: %hhX\r\n", irq0);
+			NRF_LOG_INFO("error: %hhX\r\n", error);
+			NRF_LOG_INFO("coll: %hhX\r\n", coll);
+			
 			uint8_t collision_pos = 0;
 			if (irq0 & MFRC630_IRQ0_ERR_IRQ) {  // some error occured.
 	// Check what kind of error.
@@ -376,15 +386,15 @@ uint8_t mfrc630_iso14443a_select( uint8_t* uid, uint8_t* sak){
 				if (error & MFRC630_ERROR_COLLDET) {
 					if (coll & (1<<7)) {
 						collision_pos = coll & (~(1<<7));
-            NRF_LOG_INFO("Collision at %hhX\r\n", collision_pos);
+						NRF_LOG_INFO("Collision at %hhX\r\n", collision_pos);
 						uint8_t choice_pos = known_bits + collision_pos;
 						uint8_t selection = (uid[((choice_pos + (cascade_level-1)*3)/8)] >> ((choice_pos) % 8))&1;
 
 						uid_this_level[((choice_pos)/8)] |= selection << ((choice_pos) % 8);
 						known_bits++;  
-            NRF_LOG_INFO("uid_this_level now kb %hhd long: ", known_bits);
-            mfrc630_print_block(uid_this_level, 10);
-						printf("\r\n");
+						NRF_LOG_INFO("uid_this_level now kb %hhd long: ", known_bits);
+						mfrc630_print_block(uid_this_level, 10);
+						NRF_LOG_INFO("\r\n");
 					} else {
 						NRF_LOG_INFO("Collision but no valid collpos.\r\n");
 						collision_pos = 0x20 - known_bits;
@@ -395,34 +405,40 @@ uint8_t mfrc630_iso14443a_select( uint8_t* uid, uint8_t* sak){
 				}
 			} else if (irq0 & MFRC630_IRQ0_RX_IRQ) {
 				collision_pos = 0x20 - known_bits;
-        NRF_LOG_INFO("Got data, no collision, setting to: %hhx\r\n", collision_pos);				
+				NRF_LOG_INFO("Got data, no collision, setting to: %hhx\r\n", collision_pos);				
 			} else {
 				return 0;
 			}
-      NRF_LOG_INFO("collision_pos: %hhX\r\n", collision_pos);
+			NRF_LOG_INFO("collision_pos: %hhX\r\n", collision_pos);
 
 			mfrc630_read_fifo(buf,5);
-
+			
+			  NRF_LOG_INFO("Fifo %hhd long: ", 5);
+			  mfrc630_print_block(buf, 5);
+			  NRF_LOG_INFO("\r\n");
+			
 			uint8_t rbx;
-      NRF_LOG_INFO("uid_this_level kb %hhd long: ", known_bits);
-      mfrc630_print_block(uid_this_level, (known_bits + 8 - 1) / 8);
-			printf("\r\n");
+			NRF_LOG_INFO("uid_this_level kb %hhd long: ", known_bits);
+			mfrc630_print_block(uid_this_level, (known_bits + 8 - 1) / 8);
+			NRF_LOG_INFO("\r\n");
 			for (rbx = 0; (rbx < 5); rbx++) {
 				uid_this_level[(known_bits / 8) + rbx] |= buf[rbx];
 			}
 			known_bits += collision_pos;
-      NRF_LOG_INFO("known_bits: %hhX\r\n", known_bits);
+			NRF_LOG_INFO("known_bits: %hhX\r\n", known_bits);
 		
 			if ((known_bits >= 32)) {
-        NRF_LOG_INFO("exit collision loop\r\n");
-        NRF_LOG_INFO("uid_this_level kb %hhd long: ", known_bits);				
-        mfrc630_print_block(uid_this_level, 10);		
-				printf("\r\n");				
+				NRF_LOG_INFO("exit collision loop\r\n");
+				NRF_LOG_INFO("uid_this_level kb %hhd long: ", known_bits);				
+				mfrc630_print_block(uid_this_level, 10);		
+				NRF_LOG_INFO("\r\n");				
 				break; 
 			}
 		}  
 	// check if the BCC matches
-		uint8_t bcc_val = uid_this_level[4];  
+//		uint8_t bcc_val = uid_this_level[4];  
+		
+		uint8_t bcc_val = buf[4];  
 		uint8_t bcc_calc = uid_this_level[0]^uid_this_level[1]^uid_this_level[2]^uid_this_level[3];
 
 		if (bcc_val != bcc_calc) {
@@ -444,9 +460,9 @@ uint8_t mfrc630_iso14443a_select( uint8_t* uid, uint8_t* sak){
 		uint8_t rxalign = 0;
 		mfrc630_write_reg(MFRC630_REG_RXBITCTRL, (0 << 7) | (rxalign << 4));
 		mfrc630_cmd_transceive(send_req, message_length);
-    NRF_LOG_INFO("send_req %hhd long: ", message_length);
-    mfrc630_print_block(send_req, message_length);
-		printf("\r\n");				
+		NRF_LOG_INFO("send_req %hhd long: ", message_length);
+		mfrc630_print_block(send_req, message_length);
+		NRF_LOG_INFO("\r\n");				
 		
 		uint8_t irq1_value = 0;
 		while (!(irq1_value & (1 << timer_for_timeout))) {
@@ -467,8 +483,8 @@ uint8_t mfrc630_iso14443a_select( uint8_t* uid, uint8_t* sak){
 		uint8_t sak_len = 1;
 		mfrc630_read_fifo(sak, sak_len);	
 		NRF_LOG_INFO("SAK answer: ");
-    mfrc630_print_block(sak, 1);
-		printf("\r\n");				
+		mfrc630_print_block(sak, 1);
+		NRF_LOG_INFO("\r\n");				
 
 		if (*sak & (1 << 2)) {
 			uint8_t UIDn;
@@ -484,9 +500,9 @@ uint8_t mfrc630_iso14443a_select( uint8_t* uid, uint8_t* sak){
 		}
     NRF_LOG_INFO("Exit cascade %hhd long: \r\n", cascade_level);
     mfrc630_print_block(uid, 10);		
-		printf("\r\n");
+	NRF_LOG_INFO("\r\n");
 	}  
-  return 0; 
+	return 0; 
 }
 
 

@@ -26,15 +26,11 @@
 #include "hextochar.h"
 
 #define CONN_CFG_TAG                    1                                           /**< A tag that refers to the BLE stack configuration we set with @ref sd_ble_cfg_set. Default tag is @ref BLE_CONN_CFG_TAG_DEFAULT. */
-
 #define APP_FEATURE_NOT_SUPPORTED       BLE_GATT_STATUS_ATTERR_APP_BEGIN + 2        /**< Reply when unsupported features are requested. */
-
-#define DEVICE_NAME                     "MFRC630"                               /**< Name of device. Will be included in the advertising data. */
+#define DEVICE_NAME                     "MFRC630"                                   /**< Name of device. Will be included in the advertising data. */
 #define NUS_SERVICE_UUID_TYPE           BLE_UUID_TYPE_VENDOR_BEGIN                  /**< UUID type for the Nordic UART Service (vendor specific). */
-
 #define APP_ADV_INTERVAL                64                                          /**< The advertising interval (in units of 0.625 ms. This value corresponds to 40 ms). */
 #define APP_ADV_TIMEOUT_IN_SECONDS      180                                         /**< The advertising timeout (in units of seconds). */
-
 #define MIN_CONN_INTERVAL               MSEC_TO_UNITS(20, UNIT_1_25_MS)             /**< Minimum acceptable connection interval (20 ms), Connection interval uses 1.25 ms units. */
 #define MAX_CONN_INTERVAL               MSEC_TO_UNITS(75, UNIT_1_25_MS)             /**< Maximum acceptable connection interval (75 ms), Connection interval uses 1.25 ms units. */
 #define SLAVE_LATENCY                   0                                           /**< Slave latency. */
@@ -42,9 +38,7 @@
 #define FIRST_CONN_PARAMS_UPDATE_DELAY  APP_TIMER_TICKS(5000)                       /**< Time from initiating event (connect or start of notification) to first time sd_ble_gap_conn_param_update is called (5 seconds). */
 #define NEXT_CONN_PARAMS_UPDATE_DELAY   APP_TIMER_TICKS(30000)                      /**< Time between each call to sd_ble_gap_conn_param_update after the first call (30 seconds). */
 #define MAX_CONN_PARAMS_UPDATE_COUNT    3                                           /**< Number of attempts before giving up the connection parameter negotiation. */
-
 #define DEAD_BEEF                       0xDEADBEEF                                  /**< Value used as error code on stack dump, can be used to identify stack location on stack unwind. */
-
 #define UART_TX_BUF_SIZE                512                                         /**< UART TX buffer size. */
 #define UART_RX_BUF_SIZE                512                                         /**< UART RX buffer size. */
 
@@ -60,27 +54,31 @@
 static ble_nus_t                        m_nus;                                      /**< Structure to identify the Nordic UART Service. */
 static uint16_t                         m_conn_handle = BLE_CONN_HANDLE_INVALID;    /**< Handle of the current connection. */
 static ble_dfu_t      									m_dfus;                                     /**< Structure used to identify the DFU service. */
-
 static nrf_ble_gatt_t                   m_gatt;                                     /**< GATT module instance. */
 static ble_uuid_t                       m_adv_uuids[] = {{BLE_UUID_NUS_SERVICE, NUS_SERVICE_UUID_TYPE}};  /**< Universally unique service identifier. */
 static uint16_t                         m_ble_nus_max_data_len = BLE_GATT_ATT_MTU_DEFAULT - 3;  /**< Maximum length of data (in bytes) that can be transmitted to the peer by the Nordic UART service module. */
 
 static void (*reset_this_CPU)(void) = 0x0000; //复位重新开始的地址
-uint8_t mfrc630_MF_example_dump(void); 
-APP_TIMER_DEF(timer_id);                              /**< Battery timer. */
+uint8_t check_card_status(void);
+APP_TIMER_DEF(timer_id);                              
 
-/**@brief Function for the Timer initialization.
- *
- * @details Initializes the timer module.
+#define CardNumber 2
+uint8_t read_uid_old[CardNumber][4] = {0};
+uint8_t read_uid[CardNumber][4] = {0};//记录本次读到的卡,假设做多五张卡
+uint8_t card_number = 0;//读到的卡的数量
+
+/**@brief Function for close connect.
  */
-
 void close_connect()
 {
     ret_code_t err_code;	
-	NRF_LOG_INFO("timer is done\r\n");
-	err_code = sd_ble_gap_disconnect(m_conn_handle, BLE_HCI_CONN_INTERVAL_UNACCEPTABLE);
+	err_code = sd_ble_gap_disconnect(m_conn_handle,
+									 BLE_HCI_CONN_INTERVAL_UNACCEPTABLE);
 	APP_ERROR_CHECK(err_code);		
 }
+
+/**@brief Function for init timer.
+ */
 static void timers_init(void)
 {
     ret_code_t err_code;
@@ -88,16 +86,15 @@ static void timers_init(void)
     err_code = app_timer_init();
     APP_ERROR_CHECK(err_code);
 
-    // Create battery timer.
     err_code = app_timer_create(&timer_id,
                                 APP_TIMER_MODE_SINGLE_SHOT,
                                 close_connect);
     APP_ERROR_CHECK(err_code);
 }
-#define MY_TIMER            APP_TIMER_TICKS(10000)  
 
 /**@brief Function for starting timers.
  */
+#define MY_TIMER            APP_TIMER_TICKS(10000)  
 static void timers_start(void)
 {
     ret_code_t err_code;
@@ -107,7 +104,6 @@ static void timers_start(void)
 	NRF_LOG_INFO("timer start\r\n");
 
 }
-
 
 /**@brief Function for assert macro callback.
  *
@@ -125,9 +121,7 @@ void assert_nrf_callback(uint16_t line_num, const uint8_t * p_file_name)
 	app_error_handler(DEAD_BEEF, line_num, p_file_name);
 }
 
-
 /**@brief Function for the GAP initialization.
- *
  * @details This function will set up all the necessary GAP (Generic Access Profile) parameters of
  *          the device. It also sets the permissions and appearance.
  */
@@ -140,8 +134,8 @@ static void gap_params_init(void)
 	BLE_GAP_CONN_SEC_MODE_SET_OPEN(&sec_mode);
 
 	err_code = sd_ble_gap_device_name_set(&sec_mode,
-																				(const uint8_t *) DEVICE_NAME,
-																				strlen(DEVICE_NAME));
+										  (const uint8_t *) DEVICE_NAME,
+										  strlen(DEVICE_NAME));
 	APP_ERROR_CHECK(err_code);
 
 	memset(&gap_conn_params, 0, sizeof(gap_conn_params));
@@ -152,11 +146,8 @@ static void gap_params_init(void)
 	gap_conn_params.conn_sup_timeout  = CONN_SUP_TIMEOUT;
 
 	err_code = sd_ble_gap_ppcp_set(&gap_conn_params);
-	APP_ERROR_CHECK(err_code);
-																				
-                                         																				
+	APP_ERROR_CHECK(err_code);																			                                   																				
 }
-
 
 
 /**@brief Function for handling the data from the Nordic UART Service.
@@ -169,43 +160,9 @@ static void gap_params_init(void)
  * @param[in] length   Length of the data.
  */
 /**@snippet [Handling the data received over BLE] */
+uint8_t connection_stat = 0;//判断认证状态
 static void nus_data_handler(ble_nus_t * p_nus, uint8_t * p_data, uint16_t length)
 {
-  uint32_t err_code;
-
-  NRF_LOG_DEBUG("Received data from BLE NUS. Writing data on UART.\r\n");
-	ble_nus_string_send(&m_nus, p_data, length);
-	for(uint32_t i = 0; i < length; i++)
-	{
-		app_uart_put(p_data[i]);
-	}
-
-	NRF_LOG_HEXDUMP_DEBUG(p_data, length);
-
-	for (uint32_t i = 0; i < length; i++)
-	{
-			do
-			{
-					err_code = app_uart_put(p_data[i]);
-					if ((err_code != NRF_SUCCESS) && (err_code != NRF_ERROR_BUSY))
-					{
-							NRF_LOG_ERROR("Failed receiving NUS message. Error 0x%x. \r\n", err_code);
-							APP_ERROR_CHECK(err_code);
-					}
-			} while (err_code == NRF_ERROR_BUSY);
-	}
-	if (p_data[length-1] == '\r')
-	{
-			while (app_uart_put('\n') == NRF_ERROR_BUSY);
-	}
-
-}
-
-
-uint8_t stat = 0;//判断认证状态
-static void receive_data_from_android(ble_nus_t * p_nus, uint8_t * p_data, uint16_t length)
-{
-//uart 有接收时，到此处
 	printf("received data = %s\r\n", p_data);
 //提取status的值
 	uint32_t err_code;
@@ -226,20 +183,18 @@ static void receive_data_from_android(ble_nus_t * p_nus, uint8_t * p_data, uint1
 	}
 	p_data = 0;
 //判断status，进入对应的操作
-	uint8_t status;//判读AT指令是否正确
-	status = strcmp(at_data[0], "AT");
+	uint8_t status;
+	status = strcmp(at_data[0], "AT");//判读AT指令是否正确
 	if(status == 0)
-	{
-	
+	{	
 		status = strcmp(at_data[1], "auth");
 		if(status == 0)  //认证  
 		{
 			uint8_t auth_status;
-			auth_status = strcmp(at_data[2],"auth");
-
+			auth_status = strcmp(at_data[2],"auth");//认证内容
 			if(auth_status == 0)
 			{
-				stat = 1;
+				connection_stat = 1;
 				uint8_t *re = "RE+auth+success";
 				ble_nus_string_send(&m_nus, re, strlen(re));
      		    err_code = app_timer_stop(timer_id);
@@ -247,14 +202,13 @@ static void receive_data_from_android(ble_nus_t * p_nus, uint8_t * p_data, uint1
 			}
 			if(auth_status != 0)
 			{
-				stat = 0;
+				connection_stat = 0;
 				uint8_t *re = "RE+auth+fail";
 				ble_nus_string_send(&m_nus, re, strlen(re));						
-				err_code = sd_ble_gap_disconnect(m_conn_handle, BLE_HCI_CONN_INTERVAL_UNACCEPTABLE);
-				APP_ERROR_CHECK(err_code);	
+				close_connect();
 			}
 		}
-		if(stat == 1)	
+		if(connection_stat == 1)	
 		{
 			status = strcmp(at_data[1], "version");
 			if(status == 0) //版本
@@ -268,33 +222,24 @@ static void receive_data_from_android(ble_nus_t * p_nus, uint8_t * p_data, uint1
 				uint8_t re_str[20] = "RE+version+";
 				strcat(re_str, version_p);
 				printf("uid_str_p = %s\r\n", re_str);
-				ble_nus_string_send(&m_nus, re_str, strlen(re_str)); 			
-				
+				ble_nus_string_send(&m_nus, re_str, strlen(re_str)); 							
 			}	
 			else
 			{
 				status = strcmp(at_data[1], "uid");
 				if(status == 0) //获取UID
 				{
-					uint8_t i;
-					for(i = 0; i < 100; i++)
-					{
-						mfrc630_MF_example_dump();
-						nrf_delay_ms(50);
-					}						
+					check_card_status();				
 				}
 				else
 				{
 					status = strcmp(at_data[1], "reset");
 					if(status == 0) //复位
-					{
-						uint8_t *re = "RE+reset+now start reset,please connect again";
-						ble_nus_string_send(&m_nus, re, strlen(re));						
+					{					
 						reset_this_CPU(); //***跳到0x0000地址指针，也就是复位
-						re = "RE+reset+fail";
+						uint8_t *re = "RE+reset+fail";
 						ble_nus_string_send(&m_nus, re, strlen(re));
 					}	
-
 				}
 			}
 		}
@@ -302,14 +247,16 @@ static void receive_data_from_android(ble_nus_t * p_nus, uint8_t * p_data, uint1
 		{
 			uint8_t *re = "RE+please auth";
 			ble_nus_string_send(&m_nus, re, strlen(re));
-//			err_code = sd_ble_gap_disconnect(m_conn_handle, BLE_HCI_CONN_INTERVAL_UNACCEPTABLE);
-//			APP_ERROR_CHECK(err_code);				
+			close_connect();			
 		}	
 	}
+	else
+	{
+		close_connect();			
+	}	
 }
 
 /**@snippet [Handling the data received over BLE] */
-
 static void ble_dfu_evt_handler(ble_dfu_t * p_dfu, ble_dfu_evt_t * p_evt)
 {
 	switch (p_evt->type)
@@ -342,7 +289,6 @@ static void services_init(void)
 	memset(&nus_init, 0, sizeof(nus_init));
 
 	nus_init.data_handler = nus_data_handler;
-	nus_init.data_handler = receive_data_from_android;
 
 	err_code = ble_nus_init(&m_nus, &nus_init);
 	APP_ERROR_CHECK(err_code);
@@ -358,9 +304,7 @@ static void services_init(void)
 
 	err_code = ble_dfu_init(&m_dfus, &dfus_init);
 	APP_ERROR_CHECK(err_code);
-	
 }
-
 
 /**@brief Function for handling an event from the Connection Parameters Module.
  *
@@ -384,7 +328,6 @@ static void on_conn_params_evt(ble_conn_params_evt_t * p_evt)
 	}
 }
 
-
 /**@brief Function for handling errors from the Connection Parameters module.
  *
  * @param[in] nrf_error  Error code containing information about what went wrong.
@@ -393,7 +336,6 @@ static void conn_params_error_handler(uint32_t nrf_error)
 {
 	APP_ERROR_HANDLER(nrf_error);
 }
-
 
 /**@brief Function for initializing the Connection Parameters module.
  */
@@ -417,8 +359,6 @@ static void conn_params_init(void)
 	APP_ERROR_CHECK(err_code);
 }
 
-
-
 /**@brief Function for putting the chip into sleep mode.
  *
  * @note This function will not return.
@@ -436,7 +376,6 @@ static void sleep_mode_enter(void)
 	err_code = sd_power_system_off();
 	APP_ERROR_CHECK(err_code);
 }
-
 
 /**@brief Function for handling advertising events.
  *
@@ -462,7 +401,6 @@ static void on_adv_evt(ble_adv_evt_t ble_adv_evt)
 	}
 }
 
-
 /**@brief Function for the application's SoftDevice event handler.
  *
  * @param[in] p_ble_evt SoftDevice event.
@@ -482,7 +420,7 @@ static void on_ble_evt(ble_evt_t * p_ble_evt)
 			break; // BLE_GAP_EVT_CONNECTED
 
 		case BLE_GAP_EVT_DISCONNECTED:
-			stat = 0;
+			connection_stat = 0;
 			err_code = bsp_indication_set(BSP_INDICATE_IDLE);
 			APP_ERROR_CHECK(err_code);
 			m_conn_handle = BLE_CONN_HANDLE_INVALID;
@@ -568,7 +506,6 @@ static void on_ble_evt(ble_evt_t * p_ble_evt)
 	}
 }
 
-
 /**@brief Function for dispatching a SoftDevice event to all modules with a SoftDevice
  *        event handler.
  *
@@ -587,7 +524,6 @@ static void ble_evt_dispatch(ble_evt_t * p_ble_evt)
 	bsp_btn_ble_on_ble_evt(p_ble_evt);
 	ble_dfu_on_ble_evt(&m_dfus, p_ble_evt);
 }
-
 
 /**@brief Function for the SoftDevice initialization.
  *
@@ -642,7 +578,6 @@ static void ble_stack_init(void)
 	APP_ERROR_CHECK(err_code);
 }
 
-
 /**@brief Function for handling events from the GATT library. */
 void gatt_evt_handler(nrf_ble_gatt_t * p_gatt, const nrf_ble_gatt_evt_t * p_evt)
 {
@@ -653,7 +588,6 @@ void gatt_evt_handler(nrf_ble_gatt_t * p_gatt, const nrf_ble_gatt_evt_t * p_evt)
 	}
 	NRF_LOG_DEBUG("ATT MTU exchange completed. central 0x%x peripheral 0x%x\r\n", p_gatt->att_mtu_desired_central, p_gatt->att_mtu_desired_periph);
 }
-
 
 /**@brief Function for initializing the GATT library. */
 void gatt_init(void)
@@ -667,7 +601,6 @@ void gatt_init(void)
 	APP_ERROR_CHECK(err_code);
 }
 
-
 /**@brief Function for handling events from the BSP module.
  *
  * @param[in]   event   Event generated by button press.
@@ -675,8 +608,6 @@ void gatt_init(void)
 void bsp_event_handler(bsp_event_t event)
 {
 	uint32_t err_code;
-	uint8_t i;
-	uint8_t stat;
 	switch (event)
 	{
 		case BSP_EVENT_SLEEP:
@@ -702,25 +633,16 @@ void bsp_event_handler(bsp_event_t event)
 			}
 			break;
 		case BSP_EVENT_KEY_0:
-			for(i = 0; i < 20; i++)
-			{
-				mfrc630_MF_example_dump();
-				nrf_delay_ms(50);
-			}
+				check_card_status();
 			break;
 		case BSP_EVENT_KEY_1:
-			for(i = 0; i < 20; i++)
-			{
-				mfrc630_MF_example_dump();
-				nrf_delay_ms(50);
-			}
+				check_card_status();
 			break;				
 
 		default:
 			break;
 	}
 }
-
 
 /**@brief   Function for handling app_uart events.
  *
@@ -771,6 +693,7 @@ void uart_event_handle(app_uart_evt_t * p_event)
 				break;
 	}
 }
+
 /**@snippet [Handling the data received over UART] */
 
 /**@brief  Function for initializing the UART module.
@@ -798,6 +721,7 @@ static void uart_init(void)
 										 err_code);
 	APP_ERROR_CHECK(err_code);
 }
+
 /**@snippet [UART Initialization] */
 
 /**@brief Function for initializing the Advertising functionality.
@@ -848,7 +772,6 @@ static void buttons_leds_init(bool * p_erase_bonds)
 	*p_erase_bonds = (startup_event == BSP_EVENT_CLEAR_BONDING_DATA);
 }
 
-
 /**@brief Function for initializing the nrf log module.
  */
 static void log_init(void)
@@ -856,7 +779,6 @@ static void log_init(void)
 	ret_code_t err_code = NRF_LOG_INIT(NULL);
 	APP_ERROR_CHECK(err_code);
 }
-
 
 /**@brief Function for placing the application in low power state while waiting for events.
  */
@@ -866,11 +788,193 @@ static void power_manage(void)
 	APP_ERROR_CHECK(err_code);
 }
 
+/**@brief Function for read UID.
+ * @details This function will read UID and judge whether the UID has been read.
+ */
+uint8_t read_iso14443a(void) 
+{	
+	uint8_t status = 1;//记录当前读到卡的状态，以前读到过为0，没有读到过为1 
+	uint8_t i, j;
+	uint16_t atqa = mfrc630_iso14443a_REQA();
+	if (atqa != 0) {  //是否有应答
+		uint8_t sak;
+		uint8_t uid[10] = {0};  //UID最长为10个字节
+		
+		uint8_t uid_len = mfrc630_iso14443a_select(uid, &sak);
+
+		if (uid_len != 0) { // 是否读到UID
+			NRF_LOG_INFO("uid_len = %d\r\n", uid_len);
+			if(card_number != 0)//原来有卡
+			{	
+				for(i = 0; i < card_number; i++)//判断此次读到的数据是不是上次读到的
+				{
+					for(j = 0; j < uid_len; j++)
+					{						
+						if(read_uid[i][j] == uid[j])
+						{
+							if(j == (uid_len - 1))
+							{
+								NRF_LOG_INFO("this a old card\r\n");
+								status  = 0;
+							}
+						}
+						else
+							break;
+					}//如果没有退出，说明此数据是以前记录的
+				}
+			}			
+			if(status == 1)//读到新卡,记录UID
+			{
+				card_number += 1;		
+				NRF_LOG_INFO("card_number = %d\r\n", card_number);								
+				for(j = 0; j < uid_len;j++)
+				{
+					read_uid[card_number - 1][j] = uid[j];
+				}
+				NRF_LOG_INFO("read a new card\r\n");				
+			}
+		} 
+		else {
+			NRF_LOG_INFO("Could not determine UID, perhaps some cards don't play\r\n");
+			NRF_LOG_INFO(" well with the other cards? Or too many collisions?\r\n");
+			return 0;
+		}
+	}else {
+		NRF_LOG_INFO("No answer to REQA, no cards?\r\n");
+		return 0;
+	}
+}
+
+/**@brief Function for check the status of the card.
+ * @details This function will check the status of the card .
+ */
+uint8_t check_card_status(void)
+{
+	memset(read_uid_old,0,sizeof(read_uid_old));//清空数据
+	uint8_t i, j, k;
+	uint8_t card_stat;	//记录这张卡在上次是不是被读到过，  上次有为0， 没有为1
+	for(i = 0; i < CardNumber; i++)//记录上一次的读卡数据
+	{
+		for(j = 0; j < 4; j++)
+		{
+			read_uid_old[i][j] = read_uid[i][j];
+		}
+	}
+	
+	uint8_t last_time_num = card_number;//记录上一次读到卡的数量
+	NRF_LOG_INFO("read card start\r\n");
+	card_number = 0;//记录卡的数量，清零
+	memset(read_uid,0,sizeof(read_uid));//清空数据
+
+	for(i = 0; i < 10; i++)
+	{
+		read_iso14443a(); //读一次卡,储存卡的值到read_uid
+		nrf_delay_ms(100);
+	}
+	
+	NRF_LOG_INFO("card_number = %d\r\n", card_number);
+	for(k = 0; k < card_number; k++)//上线   有没有多卡
+	{
+		card_stat = 1;
+		for(i = 0; i < CardNumber; i++)//和每一个上次读到的数据做对比
+		{
+			for(j = 0; j < 4; j++)
+			{
+				if(read_uid_old[i][j] == read_uid[k][j])//如果在上次记录的数据中也有此卡，不做处理			
+				{	
+					if(j == 3)
+					{
+						NRF_LOG_INFO("the card is same of last time\r\n");
+						card_stat = 0;
+					}
+				}
+				else
+					break;
+			}
+		}
+		if(card_stat == 1)
+		{
+			uint8_t uid_str[9];
+			uint8_t *uid_str_p;
+			uid_str_p = uid_str;
+			uid_str_p = hex_to_char_uid(read_uid[k], 4);			
+			uint8_t re_str[20] = "RE+online+";
+			strcat(re_str, uid_str_p);
+			printf("uid_str_p = %s\r\n", re_str);
+			ble_nus_string_send(&m_nus, re_str, 20); 
+		}			
+	}
+	
+	for(k = 0; k < last_time_num; k++)//下线，有没有少卡
+	{
+		card_stat = 1;
+		for(i = 0; i < card_number; i++)//和每一个上次读到的数据做对比
+		{
+			for(j = 0; j < 4; j++)
+			{
+				if(read_uid_old[k][j] == read_uid[i][j])//如果在上次记录的数据中也有此卡，不做处理			
+				{	
+					if(j == 3)
+					{
+						NRF_LOG_INFO("the card is same of last time\r\n");
+						card_stat = 0;
+					}
+				}
+				else
+					break;
+			}
+		}
+		if(card_stat == 1) //卡下线
+		{
+			uint8_t uid_str[9];
+			uint8_t *uid_str_p;
+			uid_str_p = uid_str;
+			uid_str_p = hex_to_char_uid(read_uid_old[k], 4);			
+			uint8_t re_str[20] = "RE+offline+";
+			strcat(re_str, uid_str_p);
+			printf("uid_str_p = %s\r\n", re_str);
+			ble_nus_string_send(&m_nus, re_str, 20); 
+		}			
+	}			
+}
 
 
+/**@brief Application main function.
+ */
+int main(void)
+{
+	uint32_t err_code;
+	bool     erase_bonds;
 
+    timers_init();
+	uart_init();
+	log_init();  //sdk_config.h 3727
+	buttons_leds_init(&erase_bonds);
+	ble_stack_init();
+	gap_params_init();
+	services_init();
+	advertising_init();
+	conn_params_init();
+	mfrc630_twi_init();
+	mfrc630_AN1102_recommended_registers(MFRC630_PROTO_ISO14443A_106_MILLER_MANCHESTER);
 
+	err_code = ble_advertising_start(BLE_ADV_MODE_FAST);
+	APP_ERROR_CHECK(err_code);
 
+	NRF_LOG_INFO("start\r\n");
+	for (;;)
+	{   
+		if (NRF_LOG_PROCESS() == false)
+		{
+			power_manage();
+		}			
+//		mfrc630_MF_example_dump();
+//		nrf_delay_ms(500);
+//		NRF_LOG_INFO("\r\n\r\n");			
+	}
+}
+
+/*
 // ---------------------------------------------------------------------------
 // example
 // ---------------------------------------------------------------------------
@@ -905,226 +1009,6 @@ uint8_t mfrc630_MF_example_dump(void)
 		return 0;
 	}
 }
-
-
-
-
-#define CardNumber 5
-uint8_t read_uid_old[CardNumber][4] = {0};
-uint8_t read_uid[CardNumber][4] = {0};//记录本次读到的卡,假设做多五张卡
-uint8_t card_number = 0;
-
-uint8_t mfrc630_MF_dump(void) 
-{	
-	uint8_t status = 1;//记录当前读到卡的状态，以前读到过为0，没有读到过为1 
-	uint8_t i, j;
-	uint16_t atqa = mfrc630_iso14443a_REQA();
-	if (atqa != 0) {  // Are there any cards that answered?
-		uint8_t sak;
-		uint8_t uid[10] = {0};  // uids are maximum of 10 bytes long.
-
-		// Select the card and discover its uid.	
-		uint8_t uid_len = mfrc630_iso14443a_select(uid, &sak);
-
-		if (uid_len != 0) { // did we get an UID?
-			NRF_LOG_INFO("uid_len = %d\r\n", uid_len);
-			if(card_number != 0)//原来有卡
-			{	
-				NRF_LOG_INFO("1\r\n");
-
-				for(i = 0; i < card_number; i++)//判断此次读到的数据是不是上次读到的
-				{
-					NRF_LOG_INFO("i = %d\r\n",i);
-					NRF_LOG_INFO("2\r\n");
-						
-					for(j = 0; j < 4;j++)
-					{
-						NRF_LOG_INFO("3\r\n");
-						
-						if(read_uid[i][j] == uid[j])
-						{
-							if(j == 3 )
-							{
-								NRF_LOG_INFO("this a old card\r\n");
-								status  = 0;
-							}
-						}
-					}//如果没有退出，说明此数据是以前记录的
-				}
-			}
-//			if(card_number == 0)//原来没有卡，读到的一定是新卡
-//			{
-//				status = 1;
-//			}			
-			if(status == 1)//读到新卡
-			{
-				card_number += 1;		
-				NRF_LOG_INFO("card_number = %d\r\n", card_number);								
-				for(j = 0; j < 4;j++)
-				{
-					NRF_LOG_INFO("write uid\r\n", card_number);								
-					read_uid[card_number - 1][j] = uid[j];
-				}
-				NRF_LOG_INFO("read a new card\r\n");				
-			}
-		} 
-		else {
-			NRF_LOG_INFO("Could not determine UID, perhaps some cards don't play\r\n");
-			NRF_LOG_INFO(" well with the other cards? Or too many collisions?\r\n");
-			return 0;
-		}
-	}else {
-		NRF_LOG_INFO("No answer to REQA, no cards?\r\n");
-		return 0;
-	}
-}
-
-uint8_t read_rifd()
-{
-	uint8_t last_time_num = card_number;
-	memset(read_uid_old,0,sizeof(read_uid_old));
-	uint8_t i, j, k;
-	uint8_t stat;	//记录这张卡在上次是不是被读到过，  上次有为0， 没有为1
-	for(i = 0; i < CardNumber; i++)//记录上一次的读卡数据
-	{
-		for(j = 0; j < 4; j++)
-		{
-			read_uid_old[i][j] = read_uid[i][j];
-		}
-	}
-	NRF_LOG_INFO("read card start\r\n");
-	card_number = 0;
-	memset(read_uid,0,sizeof(read_uid));
-
-	for(i = 0; i < 10; i++)
-	{
-		mfrc630_MF_dump(); //读卡,储存卡的值到read_uid
-		nrf_delay_ms(100);
-	}
-		
-		
-	printf("card_number = %d\r\n", card_number);
-	for(k = 0; k < card_number; k++)//上线   有没有多卡
-	{
-		stat = 1;
-		for(i = 0; i < CardNumber; i++)//和每一个上次读到的数据做对比
-		{
-			for(j = 0; j < 4; j++)
-			{
-				if(read_uid_old[i][j] == read_uid[k][j])//如果在上次记录的数据中也有此卡，不做处理			
-				{	
-					if(j = 3)
-					{
-						NRF_LOG_INFO("the card is same of last time\r\n");
-						stat = 0;
-					}
-				}
-			}
-		}
-		if(stat == 1)
-		{
-			uint8_t uid_str[9];
-			uint8_t *uid_str_p;
-			uid_str_p = uid_str;
-			uid_str_p = hex_to_char_uid(read_uid[k], 4);			
-			uint8_t re_str[20] = "RE+online+";
-			strcat(re_str, uid_str_p);
-			printf("uid_str_p = %s\r\n", re_str);
-			ble_nus_string_send(&m_nus, re_str, 20); 
-		}			
-	}	
-	
-	
-	for(k = 0; k < last_time_num; k++)//下线，有没有少卡
-	{
-		stat = 1;
-		for(i = 0; i < card_number; i++)//和每一个上次读到的数据做对比
-		{
-			for(j = 0; j < 4; j++)
-			{
-				if(read_uid_old[k][j] == read_uid[i][j])//如果在上次记录的数据中也有此卡，不做处理			
-				{	
-					if(j = 3)
-					{
-						NRF_LOG_INFO("the card is same of last time\r\n");
-						stat = 0;
-					}
-				}
-			}
-		}
-		if(stat == 1)
-		{
-			uint8_t uid_str[9];
-			uint8_t *uid_str_p;
-			uid_str_p = uid_str;
-			uid_str_p = hex_to_char_uid(read_uid_old[k], 4);			
-			uint8_t re_str[20] = "RE+offline+";
-			strcat(re_str, uid_str_p);
-			printf("uid_str_p = %s\r\n", re_str);
-			ble_nus_string_send(&m_nus, re_str, 20); 
-		}			
-	}	
-	
-	printf("\r\n\r\n\r\n\r\n");
-	nrf_delay_ms(1000);
-
-}
-
-
-//	if(j == 3)//读到的卡为上次没有的卡
-//	{
-//		uint8_t uid_str[9];
-//		uint8_t *uid_str_p;
-//		uid_str_p = uid_str;
-//		uid_str_p = hex_to_char_uid(read_uid[i], 4);			
-//		uint8_t re_str[20] = "RE+online+";
-//		strcat(re_str, uid_str_p);
-//		printf("uid_str_p = %s\r\n", re_str);
-//		ble_nus_string_send(&m_nus, re_str, 20); 
-//	}
-
-/**@brief Application main function.
- */
-int main(void)
-{
-	uint32_t err_code;
-	bool     erase_bonds;
-
-//	err_code = app_timer_init();
-//	APP_ERROR_CHECK(err_code);
-    timers_init();
-
-	uart_init();
-	log_init();  //sdk_config.h 3727
-	buttons_leds_init(&erase_bonds);
-	ble_stack_init();
-	gap_params_init();
-	//gatt_init();
-	services_init();
-	advertising_init();
-	conn_params_init();
-	mfrc630_twi_init();
-	mfrc630_AN1102_recommended_registers(MFRC630_PROTO_ISO14443A_106_MILLER_MANCHESTER);
-
-	err_code = ble_advertising_start(BLE_ADV_MODE_FAST);
-	APP_ERROR_CHECK(err_code);
-
-	NRF_LOG_INFO("start\r\n");
-
-
-	for (;;)
-	{   
-//		if (NRF_LOG_PROCESS() == false)
-//		{
-//				power_manage();
-//		}	
-		read_rifd();		
-//		mfrc630_MF_example_dump();
-		nrf_delay_ms(500);
-		printf("\r\n\r\n");			
-	}
-}
-
-
+*/
 
 

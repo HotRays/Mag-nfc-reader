@@ -4,7 +4,6 @@
 #include "mfrc630_def.h"
 #include "pca10040.h"
 #include "nrf_drv_gpiote.h"
-#define  NRF_LOG_MODULE_NAME "mfrc630     "
 #include "nrf_log.h"
 #include "nrf_drv_twi.h"
 #include "app_util_platform.h"
