@@ -27,11 +27,52 @@ Project File Date:  04/25/2018
 <h2>Output:</h2>
 *** Using Compiler 'V5.06 (build 20)', folder: 'C:\Keil_v5\ARM\ARMCC\Bin'
 Build target 'nrf52832_xxaa'
-compiling mfrc630.c...
+compiling main.c...
+..\..\..\main.c(142): warning:  #167-D: argument of type "void (*)()" is incompatible with parameter of type "app_timer_timeout_handler_t"
+                                  close_connect);
+..\..\..\main.c(238): warning:  #167-D: argument of type "uint8_t *" is incompatible with parameter of type "const char *"
+        status = strcmp(at_data[0], "AT");//Âà?ËØ?ATÊå?‰ª?Êò?Âê?Ê≠?Á°?
+..\..\..\main.c(241): warning:  #167-D: argument of type "uint8_t *" is incompatible with parameter of type "const char *"
+                status = strcmp(at_data[1], "auth");
+..\..\..\main.c(245): warning:  #167-D: argument of type "uint8_t *" is incompatible with parameter of type "const char *"
+                        auth_status = strcmp(at_data[2],"auth");//ËÆ?ËØ?ÂÜ?ÂÆ?
+..\..\..\main.c(250): warning:  #167-D: argument of type "uint8_t *" is incompatible with parameter of type "const char *"
+                                ble_nus_string_send(&m_nus, re, strlen(re));
+..\..\..\main.c(258): warning:  #167-D: argument of type "uint8_t *" is incompatible with parameter of type "const char *"
+                                ble_nus_string_send(&m_nus, re, strlen(re));                                            
+..\..\..\main.c(264): warning:  #167-D: argument of type "uint8_t *" is incompatible with parameter of type "const char *"
+                        status = strcmp(at_data[1], "version");
+..\..\..\main.c(274): warning:  #167-D: argument of type "uint8_t *" is incompatible with parameter of type "char *restrict"
+                                strcat(re_str, version_p);
+..\..\..\main.c(274): warning:  #167-D: argument of type "uint8_t *" is incompatible with parameter of type "const char *restrict"
+                                strcat(re_str, version_p);
+..\..\..\main.c(276): warning:  #167-D: argument of type "uint8_t *" is incompatible with parameter of type "const char *"
+                                ble_nus_string_send(&m_nus, re_str, strlen(re_str));                                                    
+..\..\..\main.c(280): warning:  #167-D: argument of type "uint8_t *" is incompatible with parameter of type "const char *"
+                                status = strcmp(at_data[1], "uid");
+..\..\..\main.c(287): warning:  #167-D: argument of type "uint8_t *" is incompatible with parameter of type "const char *"
+                                        status = strcmp(at_data[1], "reset");
+..\..\..\main.c(292): warning:  #167-D: argument of type "uint8_t *" is incompatible with parameter of type "const char *"
+                                                ble_nus_string_send(&m_nus, re, strlen(re));
+..\..\..\main.c(300): warning:  #167-D: argument of type "uint8_t *" is incompatible with parameter of type "const char *"
+                        ble_nus_string_send(&m_nus, re, strlen(re));
+..\..\..\main.c(897): warning:  #940-D: missing return statement at end of non-void function "read_iso14443a"
+  }
+..\..\..\main.c(953): warning:  #167-D: argument of type "uint8_t *" is incompatible with parameter of type "char *restrict"
+                        strcat(re_str, uid_str_p);
+..\..\..\main.c(953): warning:  #167-D: argument of type "uint8_t *" is incompatible with parameter of type "const char *restrict"
+                        strcat(re_str, uid_str_p);
+..\..\..\main.c(984): warning:  #167-D: argument of type "uint8_t *" is incompatible with parameter of type "char *restrict"
+                        strcat(re_str, uid_str_p);
+..\..\..\main.c(984): warning:  #167-D: argument of type "uint8_t *" is incompatible with parameter of type "const char *restrict"
+                        strcat(re_str, uid_str_p);
+..\..\..\main.c(989): warning:  #940-D: missing return statement at end of non-void function "check_card_status"
+  }
+..\..\..\main.c: 20 warnings, 0 errors
 linking...
 Program Size: Code=34644 RO-data=1648 RW-data=228 ZI-data=11660  
 FromELF: creating hex file...
-".\_build\nrf52832_xxaa.axf" - 0 Error(s), 0 Warning(s).
+".\_build\nrf52832_xxaa.axf" - 0 Error(s), 20 Warning(s).
 
 <h2>Software Packages used:</h2>
 
